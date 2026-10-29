@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The challenge API is only served over plain HTTP; cleartext is allowed for that host alone. -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">squadapps.ddns-intelbras.com.br</domain>
+    </domain-config>
+</network-security-config>
