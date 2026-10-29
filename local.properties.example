@@ -1,0 +1,8 @@
+# Copy this file to local.properties (it is git-ignored) and fill in the values.
+sdk.dir=/path/to/Android/sdk
+
+# Bearer token for the challenge API. Never commit it.
+api.token=YOUR_TOKEN_HERE
+
+# Optional: override the API base URL (must end with "/").
+# api.baseUrl=http://squadapps.ddns-intelbras.com.br:37025/
