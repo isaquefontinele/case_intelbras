@@ -1,7 +1,7 @@
 package com.isaquefontinele.devicemanager.core.model
 
 /**
- * A device managed by the app. [isFavorite] is a local-only flag: it is never sent to the API.
+ * A device managed by the app.
  */
 sealed interface Device {
     val id: String

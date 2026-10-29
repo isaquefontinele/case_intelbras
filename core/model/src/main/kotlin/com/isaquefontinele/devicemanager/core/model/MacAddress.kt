@@ -10,7 +10,6 @@ object MacAddress {
     private val separators = Regex("[:\\-.\\s]")
     private val normalizedPattern = Regex("^[0-9A-F]{$LENGTH}$")
 
-    /** Removes the usual separators and uppercases the value. Does not validate it. */
     fun normalize(value: String): String = value.replace(separators, "").uppercase()
 
     fun isValid(value: String): Boolean = normalizedPattern.matches(normalize(value))

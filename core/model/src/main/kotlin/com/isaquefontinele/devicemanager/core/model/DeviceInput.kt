@@ -1,6 +1,5 @@
 package com.isaquefontinele.devicemanager.core.model
 
-/** Data typed by the user to create or update a device, before validation. */
 sealed interface DeviceInput {
     val name: String
     val password: String

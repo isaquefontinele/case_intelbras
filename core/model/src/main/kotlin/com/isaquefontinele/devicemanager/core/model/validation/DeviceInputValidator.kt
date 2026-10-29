@@ -54,10 +54,6 @@ object DeviceInputValidator {
     }
 }
 
-/**
- * Returns the input in the format expected by the API: trimmed text fields and a normalized MAC address.
- * Passwords are kept as typed.
- */
 fun DeviceInput.normalized(): DeviceInput = when (this) {
     is DeviceInput.Alarm -> copy(name = name.trim(), macAddress = MacAddress.normalize(macAddress))
     is DeviceInput.Video -> copy(name = name.trim(), serial = serial.trim(), username = username.trim())
