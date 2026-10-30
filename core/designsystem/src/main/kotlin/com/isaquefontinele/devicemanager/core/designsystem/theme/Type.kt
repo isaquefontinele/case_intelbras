@@ -33,7 +33,7 @@ private fun style(size: Int, lineHeight: Int, weight: FontWeight = FontWeight.No
 // Sizes measured from the 360dp wireframe frames.
 internal val AppTypography = Typography(
     headlineSmall = style(size = 24, lineHeight = 32, weight = FontWeight.SemiBold),
-    titleLarge = style(size = 22, lineHeight = 28, weight = FontWeight.SemiBold),
+    titleLarge = style(size = 20, lineHeight = 28, weight = FontWeight.SemiBold),
     titleMedium = style(size = 16, lineHeight = 24, weight = FontWeight.SemiBold),
     titleSmall = style(size = 14, lineHeight = 20, weight = FontWeight.SemiBold),
     bodyLarge = style(size = 16, lineHeight = 24),
