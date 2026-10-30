@@ -11,7 +11,7 @@ import com.isaquefontinele.devicemanager.feature.dashboard.navigation.dashboardS
 fun AppNavHost(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = DashboardDestination, modifier = modifier) {
-        //TODO Add actions for the dashboard screen
+        // TODO Add actions for the dashboard screen
         dashboardScreen(
             onAddDevice = {},
             onDeviceInfo = {},

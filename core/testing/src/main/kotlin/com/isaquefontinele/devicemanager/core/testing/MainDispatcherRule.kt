@@ -1,4 +1,4 @@
-package com.isaquefontinele.devicemanager.feature.dashboard
+package com.isaquefontinele.devicemanager.core.testing
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

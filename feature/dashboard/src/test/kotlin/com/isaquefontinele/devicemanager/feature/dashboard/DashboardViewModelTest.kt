@@ -4,6 +4,8 @@ import app.cash.turbine.test
 import com.isaquefontinele.devicemanager.core.data.DataError
 import com.isaquefontinele.devicemanager.core.model.AlarmCentral
 import com.isaquefontinele.devicemanager.core.model.VideoDevice
+import com.isaquefontinele.devicemanager.core.testing.FakeDeviceRepository
+import com.isaquefontinele.devicemanager.core.testing.MainDispatcherRule
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.test.TestScope
