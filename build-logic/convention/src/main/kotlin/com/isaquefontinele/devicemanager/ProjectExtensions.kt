@@ -26,5 +26,11 @@ internal fun Project.configureKotlinJvmTarget() {
     // Modules may only contain generated test sources (e.g. Hilt) until their own tests are written.
     tasks.withType<Test>().configureEach {
         failOnNoDiscoveredTests.set(false)
+        // Tests run on the daemon's JDK 25, where Robolectric needs access to JDK internals.
+        jvmArgs(
+            "--add-exports=java.base/jdk.internal.access=ALL-UNNAMED",
+            "--add-opens=java.base/java.io=ALL-UNNAMED",
+            "--enable-native-access=ALL-UNNAMED",
+        )
     }
 }
