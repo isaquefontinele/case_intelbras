@@ -15,6 +15,7 @@ enum class FieldError {
     REQUIRED,
     INVALID_MAC_ADDRESS,
     INVALID_ALARM_PASSWORD,
+    ALREADY_IN_USE,
 }
 
 data class ValidationResult(val errors: Map<DeviceField, FieldError>) {
