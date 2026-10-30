@@ -38,6 +38,9 @@
     <string name="dashboard_error_unexpected">Algo deu errado. Tente novamente.</string>
     <string name="dashboard_refresh_failed_no_connection">Sem conexão. Mostrando os dados salvos.</string>
     <string name="dashboard_refresh_failed">Não foi possível atualizar a lista.</string>
+    <string name="dashboard_device_added">Dispositivo adicionado</string>
+    <string name="dashboard_device_updated">Dispositivo atualizado</string>
+    <string name="dashboard_device_not_found">Este dispositivo não existe mais.</string>
     <string name="dashboard_device_removed">Dispositivo removido</string>
     <string name="dashboard_remove_failed">Não foi possível remover o dispositivo.</string>
     <string name="dashboard_favorite_added">Marcado como favorito</string>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="deviceform_title_new">Novo dispositivo</string>
+    <string name="deviceform_title_edit">Editar dispositivo</string>
+    <string name="deviceform_close">Fechar</string>
+    <string name="deviceform_save">Salvar</string>
+    <string name="deviceform_type">Tipo de dispositivo</string>
+    <string name="deviceform_type_alarm">Alarme</string>
+    <string name="deviceform_type_video">Vídeo</string>
+
+    <string name="deviceform_name">Nome</string>
+    <string name="deviceform_mac_address">MAC Address</string>
+    <string name="deviceform_serial">Número de série</string>
+    <string name="deviceform_username">Usuário</string>
+    <string name="deviceform_password">Senha</string>
+
+    <string name="deviceform_error_required">Campo obrigatório</string>
+    <string name="deviceform_error_mac_address">Use 12 caracteres hexadecimais, como A0:B1:C2:D3:E4:F5</string>
+    <string name="deviceform_error_alarm_password">A senha deve ter 4 ou 6 dígitos</string>
+    <string name="deviceform_error_mac_in_use">Este MAC Address já está cadastrado</string>
+    <string name="deviceform_error_serial_in_use">Este número de série já está cadastrado</string>
+    <string name="deviceform_error_in_use">Valor já cadastrado em outro dispositivo</string>
+
+    <string name="deviceform_save_failed_no_connection">Sem conexão. O dispositivo não foi salvo.</string>
+    <string name="deviceform_save_failed_unauthorized">Acesso negado. Verifique o token da API.</string>
+    <string name="deviceform_save_failed">Não foi possível salvar o dispositivo.</string>
+</resources>

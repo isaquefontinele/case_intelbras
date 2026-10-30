@@ -53,10 +53,9 @@ fun AppTextField(
         singleLine = true,
         shape = RoundedCornerShape(4.dp),
         textStyle = MaterialTheme.typography.bodyLarge,
-        keyboardOptions = if (isPassword) {
-            keyboardOptions.copy(
-                keyboardType = KeyboardType.Password,
-            )
+
+        keyboardOptions = if (isPassword && keyboardOptions.keyboardType == KeyboardType.Unspecified) {
+            keyboardOptions.copy(keyboardType = KeyboardType.Password)
         } else {
             keyboardOptions
         },

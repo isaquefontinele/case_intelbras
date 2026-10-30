@@ -1,6 +1,7 @@
 package com.isaquefontinele.devicemanager.feature.dashboard
 
 import androidx.annotation.StringRes
+import com.isaquefontinele.devicemanager.feature.dashboard.navigation.DashboardNotice
 
 @StringRes
 internal fun ErrorReason.messageRes(): Int = when (this) {
@@ -31,4 +32,11 @@ internal fun DeviceFilter.labelRes(): Int = when (this) {
     DeviceFilter.FAVORITES -> R.string.dashboard_filter_favorites
     DeviceFilter.CAMERAS -> R.string.dashboard_filter_cameras
     DeviceFilter.ALARMS -> R.string.dashboard_filter_alarms
+}
+
+@StringRes
+internal fun DashboardNotice.messageRes(): Int = when (this) {
+    DashboardNotice.DEVICE_ADDED -> R.string.dashboard_device_added
+    DashboardNotice.DEVICE_UPDATED -> R.string.dashboard_device_updated
+    DashboardNotice.DEVICE_NOT_FOUND -> R.string.dashboard_device_not_found
 }

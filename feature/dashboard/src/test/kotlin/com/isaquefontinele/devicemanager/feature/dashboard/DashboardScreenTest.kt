@@ -1,15 +1,22 @@
 package com.isaquefontinele.devicemanager.feature.dashboard
 
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.isaquefontinele.devicemanager.core.designsystem.component.AppSnackbarHost
 import com.isaquefontinele.devicemanager.core.designsystem.theme.DeviceManagerTheme
 import com.isaquefontinele.devicemanager.core.model.AlarmCentral
 import com.isaquefontinele.devicemanager.core.model.Device
 import com.isaquefontinele.devicemanager.core.model.VideoDevice
+import com.isaquefontinele.devicemanager.feature.dashboard.navigation.DashboardNotice
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -135,5 +142,29 @@ class DashboardScreenTest {
         }
 
         assertEquals(listOf("info", "edit", "favorite", "remove"), calls)
+    }
+
+    @Test
+    fun `notice is shown once and consumed`() {
+        var shown = 0
+        composeRule.setContent {
+            // Mirrors the navigation entry: the notice is cleared as soon as it is consumed.
+            var notice by remember { mutableStateOf<DashboardNotice?>(DashboardNotice.DEVICE_ADDED) }
+            val snackbarHostState = remember { SnackbarHostState() }
+            DeviceManagerTheme {
+                NoticeEffect(
+                    notice = notice,
+                    onNoticeShown = {
+                        shown++
+                        notice = null
+                    },
+                    snackbarHostState = snackbarHostState,
+                )
+                AppSnackbarHost(snackbarHostState)
+            }
+        }
+
+        composeRule.onNodeWithText("Dispositivo adicionado").assertExists()
+        assertEquals(1, shown)
     }
 }

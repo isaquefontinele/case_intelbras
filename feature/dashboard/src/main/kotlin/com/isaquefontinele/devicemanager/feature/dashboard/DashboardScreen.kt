@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
@@ -53,12 +54,16 @@ import com.isaquefontinele.devicemanager.core.model.AlarmCentral
 import com.isaquefontinele.devicemanager.core.model.Device
 import com.isaquefontinele.devicemanager.core.model.MacAddress
 import com.isaquefontinele.devicemanager.core.model.VideoDevice
+import com.isaquefontinele.devicemanager.feature.dashboard.navigation.DashboardNotice
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun DashboardRoute(
     onAddDevice: () -> Unit,
     onDeviceInfo: (Device) -> Unit,
     onEditDevice: (Device) -> Unit,
+    notice: DashboardNotice? = null,
+    onNoticeShown: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -68,6 +73,7 @@ internal fun DashboardRoute(
     LaunchedEffect(viewModel) {
         viewModel.messages.collect { snackbarHostState.showSnackbar(resources.getString(it.messageRes())) }
     }
+    NoticeEffect(notice, onNoticeShown, snackbarHostState)
 
     DashboardScreen(
         state = state,
@@ -94,6 +100,22 @@ internal fun DashboardRoute(
             onRemoveDismiss = viewModel::onRemoveDismiss,
         ),
     )
+}
+
+/**
+ * Shows [notice] once. The snackbar runs outside the effect: consuming the notice changes the effect's key, which
+ * would cancel a snackbar shown from inside it.
+ */
+@Composable
+internal fun NoticeEffect(notice: DashboardNotice?, onNoticeShown: () -> Unit, snackbarHostState: SnackbarHostState) {
+    val resources = LocalResources.current
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(notice) {
+        if (notice != null) {
+            onNoticeShown()
+            scope.launch { snackbarHostState.showSnackbar(resources.getString(notice.messageRes())) }
+        }
+    }
 }
 
 internal data class DashboardActions(
