@@ -73,7 +73,9 @@ class DashboardViewModel @Inject constructor(private val repository: DeviceRepos
         }
     }
 
-    fun onRemoveRequest(device: Device) = controls.update { it.copy(actionsFor = null, removalDeviceCandidate = device) }
+    fun onRemoveRequest(device: Device) = controls.update {
+        it.copy(actionsFor = null, removalDeviceCandidate = device)
+    }
 
     fun onRemoveDismiss() = controls.update { it.copy(removalDeviceCandidate = null) }
 

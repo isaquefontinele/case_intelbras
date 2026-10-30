@@ -1,5 +1,3 @@
-@file:Suppress("MatchingDeclarationName") // The file is named after the composable, not its style enum.
-
 package com.isaquefontinele.devicemanager.core.designsystem.component
 
 import androidx.compose.foundation.BorderStroke

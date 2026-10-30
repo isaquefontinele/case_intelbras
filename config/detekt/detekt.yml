@@ -2,6 +2,9 @@
 naming:
   FunctionNaming:
     ignoreAnnotated: ['Composable']
+  # Compose files are named after their main composable, not after the helper types they declare.
+  MatchingDeclarationName:
+    active: false
 
 complexity:
   LongParameterList:

@@ -21,6 +21,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,7 +36,8 @@ import com.isaquefontinele.devicemanager.core.designsystem.R
 import com.isaquefontinele.devicemanager.core.designsystem.icon.AppIcons
 import com.isaquefontinele.devicemanager.core.designsystem.theme.DeviceManagerTheme
 
-private val CardShape = RoundedCornerShape(4.dp)
+private val CardCornerRadius = 4.dp
+private val CardShape = RoundedCornerShape(CardCornerRadius)
 
 @Composable
 fun ListCard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
@@ -41,6 +48,47 @@ fun ListCard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() 
     ) {
         Column(content = content)
     }
+}
+
+/**
+ * One row of a card that is split across lazy list items: draws only its slice of the card (rounded top on
+ * the first row, rounded bottom on the last), so a [androidx.compose.foundation.lazy.LazyColumn] can render
+ * the same look as [ListCard].
+ */
+@Composable
+fun ListCardItem(
+    isFirst: Boolean,
+    isLast: Boolean,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val background = MaterialTheme.colorScheme.surfaceContainerLow
+    val border = DeviceManagerTheme.extendedColors.surfaceStrong
+    Column(
+        modifier = modifier.drawBehind {
+            val radius = CardCornerRadius.toPx()
+            val stroke = 1.dp.toPx()
+            // Extend the rounded rect past the edges that continue in the neighbour rows, then clip.
+            val top = if (isFirst) 0f else -2 * radius
+            val bottom = if (isLast) size.height else size.height + 2 * radius
+            clipRect {
+                drawRoundRect(
+                    color = background,
+                    topLeft = Offset(0f, top),
+                    size = Size(size.width, bottom - top),
+                    cornerRadius = CornerRadius(radius),
+                )
+                drawRoundRect(
+                    color = border,
+                    topLeft = Offset(stroke / 2, top + stroke / 2),
+                    size = Size(size.width - stroke, bottom - top - stroke),
+                    cornerRadius = CornerRadius(radius),
+                    style = Stroke(stroke),
+                )
+            }
+        },
+        content = content,
+    )
 }
 
 @Composable

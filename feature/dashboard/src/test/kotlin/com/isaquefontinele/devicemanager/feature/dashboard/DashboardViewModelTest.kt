@@ -166,13 +166,13 @@ class DashboardViewModelTest {
 
         viewModel.onRemoveRequest(camera2)
         assertNull(viewModel.uiState.value.selectedDevice)
-        assertEquals(camera2, viewModel.uiState.value.removalCandidate)
+        assertEquals(camera2, viewModel.uiState.value.removalDeviceCandidate)
 
         viewModel.messages.test {
             viewModel.onRemoveConfirm()
             assertEquals(DashboardMessage.DeviceRemoved, awaitItem())
         }
-        assertNull(viewModel.uiState.value.removalCandidate)
+        assertNull(viewModel.uiState.value.removalDeviceCandidate)
         assertEquals(listOf(alarm, camera1), viewModel.visible())
     }
 
@@ -183,7 +183,7 @@ class DashboardViewModelTest {
         viewModel.onRemoveRequest(camera2)
         viewModel.onRemoveDismiss()
 
-        assertNull(viewModel.uiState.value.removalCandidate)
+        assertNull(viewModel.uiState.value.removalDeviceCandidate)
         assertEquals(all, viewModel.visible())
     }
 

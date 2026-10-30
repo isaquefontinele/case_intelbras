@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dashboard_title">Meus dispositivos</string>
+    <plurals name="dashboard_device_count">
+        <item quantity="one">%d dispositivo</item>
+        <item quantity="other">%d dispositivos</item>
+    </plurals>
+    <string name="dashboard_search">Pesquisar</string>
+    <string name="dashboard_filter_all">Todos</string>
+    <string name="dashboard_filter_favorites">Favoritos</string>
+    <string name="dashboard_filter_cameras">Câmeras</string>
+    <string name="dashboard_filter_alarms">Alarmes</string>
+    <string name="dashboard_add">Adicionar</string>
+    <string name="dashboard_device_actions">Ações de %s</string>
+
+    <string name="dashboard_empty_title">Nenhum dispositivo cadastrado</string>
+    <string name="dashboard_empty_text">Toque em Adicionar para cadastrar o primeiro.</string>
+    <string name="dashboard_no_results_title">Nenhum dispositivo encontrado</string>
+    <string name="dashboard_no_results_text">Tente outra pesquisa ou filtro.</string>
+    <string name="dashboard_error_title">Não foi possível carregar</string>
+    <string name="dashboard_retry">Tentar novamente</string>
+
+    <string name="dashboard_type_camera">Câmera</string>
+    <string name="dashboard_type_alarm">Alarme</string>
+    <string name="dashboard_action_info">Informações</string>
+    <string name="dashboard_action_edit">Editar dispositivo</string>
+    <string name="dashboard_action_favorite">Marcar favorito</string>
+    <string name="dashboard_action_unfavorite">Desmarcar favorito</string>
+    <string name="dashboard_action_remove">Remover dispositivo</string>
+
+    <string name="dashboard_remove_title">Remover dispositivo?</string>
+    <string name="dashboard_remove_text">Você tem certeza que deseja remover este dispositivo?</string>
+    <string name="dashboard_remove_confirm">Confirmar</string>
+    <string name="dashboard_remove_cancel">Cancelar</string>
+
+    <string name="dashboard_error_no_connection">Sem conexão com o servidor.</string>
+    <string name="dashboard_error_unauthorized">Acesso negado. Verifique o token da API.</string>
+    <string name="dashboard_error_unexpected">Algo deu errado. Tente novamente.</string>
+    <string name="dashboard_refresh_failed_no_connection">Sem conexão. Mostrando os dados salvos.</string>
+    <string name="dashboard_refresh_failed">Não foi possível atualizar a lista.</string>
+    <string name="dashboard_device_removed">Dispositivo removido</string>
+    <string name="dashboard_remove_failed">Não foi possível remover o dispositivo.</string>
+    <string name="dashboard_favorite_added">Marcado como favorito</string>
+    <string name="dashboard_favorite_removed">Desmarcado como favorito</string>
+</resources>
