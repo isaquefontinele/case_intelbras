@@ -13,15 +13,16 @@ import com.isaquefontinele.devicemanager.feature.deviceform.DeviceFormResult
 import com.isaquefontinele.devicemanager.feature.deviceform.navigation.DeviceFormDestination
 import com.isaquefontinele.devicemanager.feature.deviceform.navigation.deviceFormScreen
 import com.isaquefontinele.devicemanager.feature.deviceform.navigation.navigateToDeviceForm
+import com.isaquefontinele.devicemanager.feature.deviceinfo.navigation.deviceInfoScreen
+import com.isaquefontinele.devicemanager.feature.deviceinfo.navigation.navigateToDeviceInfo
 
 @Composable
 fun AppNavHost(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = DashboardDestination, modifier = modifier) {
-        // The info screen is added in the next step; until then "Informações" does nothing.
         dashboardScreen(
             onAddDevice = { navController.navigateToDeviceForm() },
-            onDeviceInfo = {},
+            onDeviceInfo = { device -> navController.navigateToDeviceInfo(device.id) },
             onEditDevice = { device -> navController.navigateToDeviceForm(device.id) },
         )
         deviceFormScreen(
@@ -33,6 +34,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 }
             },
         )
+        deviceInfoScreen(onBack = { navController.popBackStack() })
     }
 }
 
