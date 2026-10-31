@@ -31,7 +31,12 @@ class OfflineFirstDeviceRepositoryTest {
     private val alarm = AlarmCentral(id = "a1", name = "House", macAddress = "1A2B3C4D5E6F", password = "1234")
     private val camera = VideoDevice(id = "v1", name = "Garage", serial = "ABC", username = "admin", password = "pw")
     private val alarmInput = DeviceInput.Alarm(name = " Office ", macAddress = "aa:bb:cc:dd:ee:ff", password = "1234")
-    private val videoInput = DeviceInput.Video(name = "Door", serial = "XYZ", username = "admin", password = "pw")
+    private val videoInput = DeviceInput.Video(
+        name = "Door",
+        serial = "XYZ9876543210",
+        username = "admin",
+        password = "pw",
+    )
 
     @Before
     fun setUp() {
@@ -148,7 +153,7 @@ class OfflineFirstDeviceRepositoryTest {
         repository.update(camera.id, videoInput).getOrThrow()
 
         assertEquals(
-            VideoDevice(camera.id, "Door", "XYZ", "admin", "pw", isFavorite = true),
+            VideoDevice(camera.id, "Door", "XYZ9876543210", "admin", "pw", isFavorite = true),
             repository.observeDevice(camera.id).first(),
         )
     }

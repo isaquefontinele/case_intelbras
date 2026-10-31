@@ -30,7 +30,7 @@ jobs:
         run: ./gradlew lintDebug
 
       - name: Unit tests
-        run: ./gradlew testDebugUnitTest
+        run: ./gradlew testDebugUnitTest :core:model:test
 
       - name: Assemble
         run: ./gradlew assembleDebug

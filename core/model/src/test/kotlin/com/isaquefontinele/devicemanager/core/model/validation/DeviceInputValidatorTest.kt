@@ -79,6 +79,41 @@ class DeviceInputValidatorTest {
     }
 
     @Test
+    fun `video serial must have exactly 13 characters`() {
+        listOf("ABCDEF123456", "ABCDEF12345678").forEach { serial ->
+            assertEquals(
+                serial,
+                mapOf(DeviceField.SERIAL to FieldError.INVALID_SERIAL_LENGTH),
+                DeviceInputValidator.validate(validVideo.copy(serial = serial)).errors,
+            )
+        }
+    }
+
+    @Test
+    fun `text fields accept at most 200 characters`() {
+        val limit = "a".repeat(DeviceInputValidator.MAX_TEXT_LENGTH)
+        val tooLong = limit + "a"
+
+        assertTrue(
+            DeviceInputValidator.validate(validVideo.copy(name = limit, username = limit, password = limit)).isValid,
+        )
+        assertEquals(
+            mapOf(
+                DeviceField.NAME to FieldError.TOO_LONG,
+                DeviceField.USERNAME to FieldError.TOO_LONG,
+                DeviceField.PASSWORD to FieldError.TOO_LONG,
+            ),
+            DeviceInputValidator.validate(
+                validVideo.copy(name = tooLong, username = tooLong, password = tooLong),
+            ).errors,
+        )
+        assertEquals(
+            mapOf(DeviceField.NAME to FieldError.TOO_LONG),
+            DeviceInputValidator.validate(validAlarm.copy(name = tooLong)).errors,
+        )
+    }
+
+    @Test
     fun `video password has no format rule`() {
         assertTrue(DeviceInputValidator.validate(validVideo.copy(password = "a")).isValid)
     }

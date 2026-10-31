@@ -15,6 +15,8 @@ enum class FieldError {
     REQUIRED,
     INVALID_MAC_ADDRESS,
     INVALID_ALARM_PASSWORD,
+    INVALID_SERIAL_LENGTH,
+    TOO_LONG,
     ALREADY_IN_USE,
 }
 
@@ -23,11 +25,15 @@ data class ValidationResult(val errors: Map<DeviceField, FieldError>) {
 }
 
 object DeviceInputValidator {
+    // Limits enforced by the API, which rejects other values with a 400.
+    const val SERIAL_LENGTH = 13
+    const val MAX_TEXT_LENGTH = 200
+
     private val alarmPasswordPattern = Regex("^(\\d{4}|\\d{6})$")
 
     fun validate(input: DeviceInput): ValidationResult {
         val errors = buildMap {
-            if (input.name.isBlank()) put(DeviceField.NAME, FieldError.REQUIRED)
+            validateText(DeviceField.NAME, input.name, input.name.isBlank())
             when (input) {
                 is DeviceInput.Alarm -> validateAlarm(input)
                 is DeviceInput.Video -> validateVideo(input)
@@ -49,9 +55,19 @@ object DeviceInputValidator {
     }
 
     private fun MutableMap<DeviceField, FieldError>.validateVideo(input: DeviceInput.Video) {
-        if (input.serial.isBlank()) put(DeviceField.SERIAL, FieldError.REQUIRED)
-        if (input.username.isBlank()) put(DeviceField.USERNAME, FieldError.REQUIRED)
-        if (input.password.isEmpty()) put(DeviceField.PASSWORD, FieldError.REQUIRED)
+        when {
+            input.serial.isBlank() -> put(DeviceField.SERIAL, FieldError.REQUIRED)
+            input.serial.length != SERIAL_LENGTH -> put(DeviceField.SERIAL, FieldError.INVALID_SERIAL_LENGTH)
+        }
+        validateText(DeviceField.USERNAME, input.username, input.username.isBlank())
+        validateText(DeviceField.PASSWORD, input.password, input.password.isEmpty())
+    }
+
+    private fun MutableMap<DeviceField, FieldError>.validateText(field: DeviceField, value: String, missing: Boolean) {
+        when {
+            missing -> put(field, FieldError.REQUIRED)
+            value.length > MAX_TEXT_LENGTH -> put(field, FieldError.TOO_LONG)
+        }
     }
 }
 

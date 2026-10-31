@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.stateIn
 
 sealed interface DeviceInfoUiState {
     data object Loading : DeviceInfoUiState
-    
+
     data object NotFound : DeviceInfoUiState
 
     data class Content(val device: Device) : DeviceInfoUiState

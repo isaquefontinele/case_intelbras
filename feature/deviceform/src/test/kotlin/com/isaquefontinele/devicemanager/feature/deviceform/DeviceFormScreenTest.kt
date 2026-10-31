@@ -73,6 +73,22 @@ class DeviceFormScreenTest {
     }
 
     @Test
+    fun `length errors are shown under their fields`() {
+        setScreen(
+            DeviceFormUiState(
+                type = DeviceType.VIDEO,
+                errors = mapOf(
+                    DeviceField.NAME to FieldError.TOO_LONG,
+                    DeviceField.SERIAL to FieldError.INVALID_SERIAL_LENGTH,
+                ),
+            ),
+        )
+
+        composeRule.onNodeWithText("Use no máximo 200 caracteres").assertExists()
+        composeRule.onNodeWithText("O número de série deve ter 13 caracteres").assertExists()
+    }
+
+    @Test
     fun `typing, switching type, saving and closing are reported`() {
         val calls = mutableListOf<String>()
         setScreen(

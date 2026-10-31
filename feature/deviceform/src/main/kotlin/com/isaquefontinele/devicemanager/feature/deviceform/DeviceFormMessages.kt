@@ -9,6 +9,8 @@ internal fun FieldError.messageRes(field: DeviceField): Int = when (this) {
     FieldError.REQUIRED -> R.string.deviceform_error_required
     FieldError.INVALID_MAC_ADDRESS -> R.string.deviceform_error_mac_address
     FieldError.INVALID_ALARM_PASSWORD -> R.string.deviceform_error_alarm_password
+    FieldError.INVALID_SERIAL_LENGTH -> R.string.deviceform_error_serial_length
+    FieldError.TOO_LONG -> R.string.deviceform_error_too_long
     FieldError.ALREADY_IN_USE -> when (field) {
         DeviceField.MAC_ADDRESS -> R.string.deviceform_error_mac_in_use
         DeviceField.SERIAL -> R.string.deviceform_error_serial_in_use

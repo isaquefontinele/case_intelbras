@@ -235,7 +235,7 @@ private fun DeviceInfoCameraPreview() {
     DeviceManagerTheme {
         DeviceInfoScreen(
             state = DeviceInfoUiState.Content(
-                VideoDevice("v1", "Câmera 1", "ABCDE123456789", "admin", "pw", isFavorite = true),
+                VideoDevice("v1", "Câmera 1", "ABCDE12345678", "admin", "pw", isFavorite = true),
             ),
             onBack = {},
             onCopy = { _, _ -> },

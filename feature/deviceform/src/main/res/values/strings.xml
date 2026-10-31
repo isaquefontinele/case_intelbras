@@ -17,6 +17,8 @@
     <string name="deviceform_error_required">Campo obrigatório</string>
     <string name="deviceform_error_mac_address">Use 12 caracteres hexadecimais, como A0:B1:C2:D3:E4:F5</string>
     <string name="deviceform_error_alarm_password">A senha deve ter 4 ou 6 dígitos</string>
+    <string name="deviceform_error_serial_length">O número de série deve ter 13 caracteres</string>
+    <string name="deviceform_error_too_long">Use no máximo 200 caracteres</string>
     <string name="deviceform_error_mac_in_use">Este MAC Address já está cadastrado</string>
     <string name="deviceform_error_serial_in_use">Este número de série já está cadastrado</string>
     <string name="deviceform_error_in_use">Valor já cadastrado em outro dispositivo</string>
