@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="deviceinfo_title">Informações</string>
+    <string name="deviceinfo_back">Voltar</string>
+    <string name="deviceinfo_favorite">Favorito</string>
+    <string name="deviceinfo_type">Tipo</string>
+    <string name="deviceinfo_type_video">Vídeo</string>
+    <string name="deviceinfo_type_alarm">Alarme</string>
+    <string name="deviceinfo_serial">Número de série</string>
+    <string name="deviceinfo_username">Usuário</string>
+    <string name="deviceinfo_mac_address">MAC Address</string>
+    <string name="deviceinfo_copy">Copiar %s</string>
+    <string name="deviceinfo_copied">Copiado</string>
+    <string name="deviceinfo_not_found">Este dispositivo não existe mais.</string>
+</resources>

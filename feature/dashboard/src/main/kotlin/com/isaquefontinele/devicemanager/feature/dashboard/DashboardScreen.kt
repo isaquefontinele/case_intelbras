@@ -240,7 +240,12 @@ private fun Header(totalCount: Int) {
         )
         Spacer(Modifier.height(4.dp))
         Text(
-            text = pluralStringResource(R.plurals.dashboard_device_count, totalCount, totalCount),
+            // Portuguese treats 0 as singular ("0 dispositivo"), so zero has its own string.
+            text = if (totalCount == 0) {
+                stringResource(R.string.dashboard_device_count_zero)
+            } else {
+                pluralStringResource(R.plurals.dashboard_device_count, totalCount, totalCount)
+            },
             style = MaterialTheme.typography.bodySmall,
         )
     }

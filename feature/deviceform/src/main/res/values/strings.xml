@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="deviceform_title_new">Novo dispositivo</string>
-    <string name="deviceform_title_edit">Editar dispositivo</string>
-    <string name="deviceform_close">Fechar</string>
-    <string name="deviceform_save">Salvar</string>
-    <string name="deviceform_type">Tipo de dispositivo</string>
-    <string name="deviceform_type_alarm">Alarme</string>
-    <string name="deviceform_type_video">Vídeo</string>
+    <string name="deviceform_title_new">New device</string>
+    <string name="deviceform_title_edit">Edit device</string>
+    <string name="deviceform_close">Close</string>
+    <string name="deviceform_save">Save</string>
+    <string name="deviceform_type">Device type</string>
+    <string name="deviceform_type_alarm">Alarm</string>
+    <string name="deviceform_type_video">Video</string>
 
-    <string name="deviceform_name">Nome</string>
-    <string name="deviceform_mac_address">MAC Address</string>
-    <string name="deviceform_serial">Número de série</string>
-    <string name="deviceform_username">Usuário</string>
-    <string name="deviceform_password">Senha</string>
+    <string name="deviceform_name">Name</string>
+    <string name="deviceform_mac_address">MAC address</string>
+    <string name="deviceform_serial">Serial number</string>
+    <string name="deviceform_username">Username</string>
+    <string name="deviceform_password">Password</string>
 
-    <string name="deviceform_error_required">Campo obrigatório</string>
-    <string name="deviceform_error_mac_address">Use 12 caracteres hexadecimais, como A0:B1:C2:D3:E4:F5</string>
-    <string name="deviceform_error_alarm_password">A senha deve ter 4 ou 6 dígitos</string>
-    <string name="deviceform_error_serial_length">O número de série deve ter 13 caracteres</string>
-    <string name="deviceform_error_too_long">Use no máximo 200 caracteres</string>
-    <string name="deviceform_error_mac_in_use">Este MAC Address já está cadastrado</string>
-    <string name="deviceform_error_serial_in_use">Este número de série já está cadastrado</string>
-    <string name="deviceform_error_in_use">Valor já cadastrado em outro dispositivo</string>
+    <string name="deviceform_error_required">Required field</string>
+    <string name="deviceform_error_mac_address">Use 12 hexadecimal characters, like A0:B1:C2:D3:E4:F5</string>
+    <string name="deviceform_error_alarm_password">The password must have 4 or 6 digits</string>
+    <string name="deviceform_error_serial_length">The serial number must have 13 characters</string>
+    <string name="deviceform_error_too_long">Use at most 200 characters</string>
+    <string name="deviceform_error_mac_in_use">This MAC address is already registered</string>
+    <string name="deviceform_error_serial_in_use">This serial number is already registered</string>
+    <string name="deviceform_error_in_use">Value already registered on another device</string>
 
-    <string name="deviceform_save_failed_no_connection">Sem conexão. O dispositivo não foi salvo.</string>
-    <string name="deviceform_save_failed_unauthorized">Acesso negado. Verifique o token da API.</string>
-    <string name="deviceform_save_failed">Não foi possível salvar o dispositivo.</string>
+    <string name="deviceform_save_failed_no_connection">No connection. The device was not saved.</string>
+    <string name="deviceform_save_failed_unauthorized">Access denied. Check the API token.</string>
+    <string name="deviceform_save_failed">Could not save the device.</string>
 </resources>

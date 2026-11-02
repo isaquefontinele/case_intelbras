@@ -11,6 +11,7 @@ Desafio técnico proposto pela Intelbras: app Android (Kotlin + Jetpack Compose)
 - **Offline**: os últimos dados sincronizados continuam visíveis sem conexão, e criar, editar e remover funcionam sem rede. As mudanças são enviadas automaticamente quando a conexão volta, mesmo com o app fechado.
 - **Feedback** por snackbar e estados de carregando, lista vazia e erro; *pull to refresh* na lista.
 - **Tema claro e escuro**, seguindo a configuração do sistema.
+- **Português e inglês**, seguindo o idioma do sistema.
 
 ## Requisitos
 
@@ -122,6 +123,7 @@ Kotlin 2.4 · Jetpack Compose (BOM 2026.06) + Material 3 · Navigation Compose �
 - **HTTP sem TLS.** A API só é servida em HTTP; o tráfego em texto puro é liberado apenas para esse host (`network_security_config.xml`).
 - **API lenta.** As respostas levam alguns segundos (~5 s nos testes), por isso os timeouts do OkHttp são folgados e a lista mostra os dados locais enquanto sincroniza.
 - **compileSdk 36.** Algumas bibliotecas em versões mais novas (ex.: OkHttp 5.5+) exigem compileSdk 37; foram mantidas na última versão compatível com o SDK pedido.
+- **Idiomas.** O inglês fica em `values/` e o português em `values-pt/`, então um aparelho em outro idioma vê o app em inglês. O Android Lint acusa string faltando em qualquer um dos dois. Os testes de tela conferem os textos em português, com o idioma fixado em `robolectric.properties`.
 - **Ícones provisórios.** Os ícones vêm do Material Icons e estão centralizados em `AppIcons`, para facilitar a troca pelos do Figma.
 
 ## Testes

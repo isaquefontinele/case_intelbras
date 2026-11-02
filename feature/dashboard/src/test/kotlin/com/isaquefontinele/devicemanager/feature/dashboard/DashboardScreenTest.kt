@@ -21,6 +21,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 class DashboardScreenTest {
@@ -81,6 +82,15 @@ class DashboardScreenTest {
         composeRule.onNodeWithText("0 dispositivos").assertExists()
         composeRule.onNodeWithText("Nenhum dispositivo cadastrado").assertExists()
         composeRule.onNodeWithText("Pesquisar").assertDoesNotExist()
+    }
+
+    @Test
+    @Config(qualifiers = "en")
+    fun `follows the system language`() {
+        setScreen(devicesState)
+
+        composeRule.onNodeWithText("2 devices").assertExists()
+        composeRule.onNodeWithText("Search").assertExists()
     }
 
     @Test

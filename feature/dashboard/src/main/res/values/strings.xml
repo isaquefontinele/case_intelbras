@@ -1,50 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="dashboard_title">Meus dispositivos</string>
+    <string name="dashboard_title">My devices</string>
     <plurals name="dashboard_device_count">
-        <item quantity="one">%d dispositivo</item>
-        <item quantity="other">%d dispositivos</item>
+        <item quantity="one">%d device</item>
+        <item quantity="other">%d devices</item>
     </plurals>
-    <string name="dashboard_search">Pesquisar</string>
-    <string name="dashboard_filter_all">Todos</string>
-    <string name="dashboard_filter_favorites">Favoritos</string>
-    <string name="dashboard_filter_cameras">Câmeras</string>
-    <string name="dashboard_filter_alarms">Alarmes</string>
-    <string name="dashboard_add">Adicionar</string>
-    <string name="dashboard_device_actions">Ações de %s</string>
+    <string name="dashboard_device_count_zero">0 devices</string>
+    <string name="dashboard_search">Search</string>
+    <string name="dashboard_filter_all">All</string>
+    <string name="dashboard_filter_favorites">Favorites</string>
+    <string name="dashboard_filter_cameras">Cameras</string>
+    <string name="dashboard_filter_alarms">Alarms</string>
+    <string name="dashboard_add">Add</string>
+    <string name="dashboard_device_actions">Actions for %s</string>
 
-    <string name="dashboard_empty_title">Nenhum dispositivo cadastrado</string>
-    <string name="dashboard_empty_text">Toque em Adicionar para cadastrar o primeiro.</string>
-    <string name="dashboard_no_results_title">Nenhum dispositivo encontrado</string>
-    <string name="dashboard_no_results_text">Tente outra pesquisa ou filtro.</string>
-    <string name="dashboard_error_title">Não foi possível carregar</string>
-    <string name="dashboard_retry">Tentar novamente</string>
+    <string name="dashboard_empty_title">No devices yet</string>
+    <string name="dashboard_empty_text">Tap Add to register the first one.</string>
+    <string name="dashboard_no_results_title">No devices found</string>
+    <string name="dashboard_no_results_text">Try another search or filter.</string>
+    <string name="dashboard_error_title">Could not load</string>
+    <string name="dashboard_retry">Try again</string>
 
-    <string name="dashboard_type_camera">Câmera</string>
-    <string name="dashboard_type_alarm">Alarme</string>
-    <string name="dashboard_action_info">Informações</string>
-    <string name="dashboard_action_edit">Editar dispositivo</string>
-    <string name="dashboard_action_favorite">Marcar favorito</string>
-    <string name="dashboard_action_unfavorite">Desmarcar favorito</string>
-    <string name="dashboard_action_remove">Remover dispositivo</string>
+    <string name="dashboard_type_camera">Camera</string>
+    <string name="dashboard_type_alarm">Alarm</string>
+    <string name="dashboard_action_info">Information</string>
+    <string name="dashboard_action_edit">Edit device</string>
+    <string name="dashboard_action_favorite">Mark as favorite</string>
+    <string name="dashboard_action_unfavorite">Remove from favorites</string>
+    <string name="dashboard_action_remove">Remove device</string>
 
-    <string name="dashboard_remove_title">Remover dispositivo?</string>
-    <string name="dashboard_remove_text">Você tem certeza que deseja remover este dispositivo?</string>
-    <string name="dashboard_remove_confirm">Confirmar</string>
-    <string name="dashboard_remove_cancel">Cancelar</string>
+    <string name="dashboard_remove_title">Remove device?</string>
+    <string name="dashboard_remove_text">Are you sure you want to remove this device?</string>
+    <string name="dashboard_remove_confirm">Confirm</string>
+    <string name="dashboard_remove_cancel">Cancel</string>
 
-    <string name="dashboard_error_no_connection">Sem conexão com o servidor.</string>
-    <string name="dashboard_error_unauthorized">Acesso negado. Verifique o token da API.</string>
-    <string name="dashboard_error_unexpected">Algo deu errado. Tente novamente.</string>
-    <string name="dashboard_refresh_failed_no_connection">Sem conexão. Mostrando os dados salvos.</string>
-    <string name="dashboard_refresh_failed">Não foi possível atualizar a lista.</string>
-    <string name="dashboard_device_added">Dispositivo adicionado</string>
-    <string name="dashboard_device_updated">Dispositivo atualizado</string>
-    <string name="dashboard_device_saved_offline">Salvo. Será sincronizado quando houver conexão</string>
-    <string name="dashboard_device_not_found">Este dispositivo não existe mais.</string>
-    <string name="dashboard_device_removed">Dispositivo removido</string>
-    <string name="dashboard_device_removed_offline">Removido. Será sincronizado quando houver conexão</string>
-    <string name="dashboard_remove_failed">Não foi possível remover o dispositivo.</string>
-    <string name="dashboard_favorite_added">Marcado como favorito</string>
-    <string name="dashboard_favorite_removed">Desmarcado como favorito</string>
+    <string name="dashboard_error_no_connection">No connection to the server.</string>
+    <string name="dashboard_error_unauthorized">Access denied. Check the API token.</string>
+    <string name="dashboard_error_unexpected">Something went wrong. Try again.</string>
+    <string name="dashboard_refresh_failed_no_connection">No connection. Showing saved data.</string>
+    <string name="dashboard_refresh_failed">Could not update the list.</string>
+    <string name="dashboard_device_added">Device added</string>
+    <string name="dashboard_device_updated">Device updated</string>
+    <string name="dashboard_device_saved_offline">Saved. It will sync when there is a connection</string>
+    <string name="dashboard_device_not_found">This device no longer exists.</string>
+    <string name="dashboard_device_removed">Device removed</string>
+    <string name="dashboard_device_removed_offline">Removed. It will sync when there is a connection</string>
+    <string name="dashboard_remove_failed">Could not remove the device.</string>
+    <string name="dashboard_favorite_added">Marked as favorite</string>
+    <string name="dashboard_favorite_removed">Removed from favorites</string>
 </resources>

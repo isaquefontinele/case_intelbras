@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="designsystem_clear_search">Limpar pesquisa</string>
+    <string name="designsystem_favorite">Favorito</string>
+    <string name="designsystem_show_password">Mostrar senha</string>
+    <string name="designsystem_hide_password">Ocultar senha</string>
+</resources>
