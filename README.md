@@ -124,7 +124,7 @@ Kotlin 2.4 · Jetpack Compose (BOM 2026.06) + Material 3 · Navigation Compose �
 - **API lenta.** As respostas levam alguns segundos (~5 s nos testes), por isso os timeouts do OkHttp são folgados e a lista mostra os dados locais enquanto sincroniza.
 - **compileSdk 36.** Algumas bibliotecas em versões mais novas (ex.: OkHttp 5.5+) exigem compileSdk 37; foram mantidas na última versão compatível com o SDK pedido.
 - **Idiomas.** O inglês fica em `values/` e o português em `values-pt/`, então um aparelho em outro idioma vê o app em inglês. O Android Lint acusa string faltando em qualquer um dos dois. Os testes de tela conferem os textos em português, com o idioma fixado em `robolectric.properties`.
-- **Ícones provisórios.** Os ícones vêm do Material Icons e estão centralizados em `AppIcons`, para facilitar a troca pelos do Figma.
+- **Ícones como Vector Drawable.** Os ícones vêm do Figma e ficam centralizados em `AppIcons`. A exceção é o olho aberto de "mostrar senha": o Figma só tem o olho riscado, então usei o desenho equivalente do Material. A estrela preenchida ao lado do nome de um favorito também não está no protótipo; foi feita a partir do contorno da estrela do Figma.
 
 ## Testes
 
@@ -148,5 +148,14 @@ Kotlin 2.4 · Jetpack Compose (BOM 2026.06) + Material 3 · Navigation Compose �
   - Com a tela de Informações aberta, um dispositivo criado offline que recebe o id do servidor aparece como "não existe mais" até voltar para a lista.
   - A lista não indica quais dispositivos ainda aguardam envio.
 - **Acessibilidade**: descrições para leitor de tela e áreas de toque já estão nos componentes; falta uma revisão completa com TalkBack.
-- **Ícones definitivos** do Figma.
 - **Testes instrumentados** em aparelho (hoje todos os testes de UI e banco rodam com Robolectric).
+
+## O que eu melhoraria com mais tempo
+
+- **Segurança**: o token fica no `BuildConfig`, e por isso pode ser extraído do APK; o certo seria autenticar o usuário e receber um token de sessão. As senhas dos dispositivos ficam em texto puro no Room, onde poderiam ser criptografadas com SQLCipher ou Keystore. E o tráfego precisaria de HTTPS, que depende da API.
+- **Conflitos na sincronização**: hoje a mudança local pendente vence o que está no servidor, sem comparar. Com uma versão ou data de alteração na API, daria para detectar a edição concorrente e perguntar ao usuário.
+- **Performance**: medir recomposições e uso de memória, e adicionar Baseline Profile e Macrobenchmark para o início do app.
+- **Testes de ponta a ponta**: fluxos completos em aparelho contra um servidor de teste, cobrindo também o build de release, que hoje só testei manualmente.
+- **CI e distribuição**: gerar o build de release com R8 no CI, assinar com uma chave própria e publicar por um canal de teste.
+- **Listas grandes**: paginação com Paging 3, se a API passar a oferecer. Hoje cada sincronização baixa todos os dispositivos.
+- **UI**: animações nas transições entre telas e estados, e seletor de idioma por app no Android 13 ou superior.

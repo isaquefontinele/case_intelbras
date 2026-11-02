@@ -66,7 +66,7 @@ internal fun DeviceActionsContent(
         SheetAction(AppIcons.Info, stringResource(R.string.dashboard_action_info), onInfo)
         SheetAction(AppIcons.Edit, stringResource(R.string.dashboard_action_edit), onEdit)
         if (device.isFavorite) {
-            SheetAction(AppIcons.Favorited, stringResource(R.string.dashboard_action_unfavorite), onToggleFavorite)
+            SheetAction(AppIcons.Unfavorite, stringResource(R.string.dashboard_action_unfavorite), onToggleFavorite)
         } else {
             SheetAction(AppIcons.Favorite, stringResource(R.string.dashboard_action_favorite), onToggleFavorite)
         }
