@@ -65,25 +65,26 @@ internal class OfflineFirstDeviceRepository @Inject constructor(
     }
 
     override suspend fun update(id: String, input: DeviceInput): Result<WriteOutcome> = withValidInput(input) { valid ->
-        when (val state = deviceDao.getById(id)?.syncState) {
+        val currentId = deviceDao.currentId(id)
+        when (val state = deviceDao.getById(currentId)?.syncState) {
             SyncState.PENDING_DELETE -> throw DataError.NotFound()
             // The server gets the latest values when the pending change is sent.
             SyncState.PENDING_CREATE, SyncState.PENDING_UPDATE -> queue {
-                deviceDao.upsert(listOf(valid.toEntity(id, state)))
+                deviceDao.upsert(listOf(valid.toEntity(currentId, state)))
             }
             SyncState.SYNCED, null -> sendOrQueue(
-                send = { sendUpdateOrDropLocal(id, valid) },
-                queue = { deviceDao.upsert(listOf(valid.toEntity(id, SyncState.PENDING_UPDATE))) },
+                send = { sendUpdateOrDropLocal(currentId, valid) },
+                queue = { deviceDao.upsert(listOf(valid.toEntity(currentId, SyncState.PENDING_UPDATE))) },
             )
         }
     }
 
     override suspend fun delete(device: Device): Result<WriteOutcome> = runCatchingData {
         writeLock.withLock {
-            val entity = device.toEntity()
-            if (deviceDao.getById(device.id)?.syncState == SyncState.PENDING_CREATE) {
+            val entity = device.toEntity().copy(id = deviceDao.currentId(device.id))
+            if (deviceDao.getById(entity.id)?.syncState == SyncState.PENDING_CREATE) {
                 // The server never knew about it.
-                deviceDao.deleteById(device.id)
+                deviceDao.deleteById(entity.id)
                 WriteOutcome.SENT
             } else {
                 sendOrQueue(

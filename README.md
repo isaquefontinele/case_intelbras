@@ -105,7 +105,7 @@ Kotlin 2.4 · Jetpack Compose (BOM 2026.06) + Material 3 · Navigation Compose �
 - **Uma tabela para os dois tipos.** Câmeras e alarmes ficam em `devices`, com uma coluna de tipo e os campos específicos opcionais. Os ids da API são UUIDs, então não há colisão entre os tipos, e a lista ordenada e a busca saem de uma única consulta.
 - **Fila offline como estado do dispositivo.** Em vez de uma tabela de operações, cada linha de `devices` tem um `syncState` (`SYNCED`, `PENDING_CREATE`, `PENDING_UPDATE`, `PENDING_DELETE`), adicionado na versão 2 do banco com migração testada. Assim, mudanças seguidas no mesmo dispositivo se juntam sozinhas: criar e editar vira uma criação com os dados novos, criar e remover não envia nada, e editar e remover envia só a remoção.
   - **A API é tentada primeiro**, para que erros como MAC já cadastrado continuem aparecendo no campo. Só falta de conexão e tempo limite estourado viram pendência. Erro 500 e token inválido são mostrados ao usuário.
-  - **A sincronização preserva o que está pendente.** Linhas com mudança não enviada não são sobrescritas nem apagadas pelo download. Dispositivos criados offline usam um id local, trocado pelo id do servidor no envio, e o favorito acompanha a troca.
+  - **A sincronização preserva o que está pendente.** Linhas com mudança não enviada não são sobrescritas nem apagadas pelo download. Dispositivos criados offline usam um id local, trocado pelo id do servidor no envio, e o favorito acompanha a troca. A troca fica registrada em uma tabela, para que uma tela aberta antes do envio continue encontrando o dispositivo pelo id antigo.
   - **Uma operação por vez.** Um `Mutex` no repositório serializa escritas e sincronizações, incluindo as chamadas de rede. Sem ele, uma sincronização poderia sobrescrever uma edição feita enquanto esperava o servidor. O custo é que salvar pode esperar uma sincronização em andamento.
   - **Recusas no envio não são repetidas.** Um 409 ou outro erro 4xx não se resolve tentando de novo, então a mudança é descartada e o dispositivo volta ao que o servidor tem. Falhas temporárias são repetidas com espera exponencial.
 - **Validação local alinhada à API.** A documentação não descreve todas as regras; testando a API, o servidor recusa com 400:
@@ -145,7 +145,6 @@ Kotlin 2.4 · Jetpack Compose (BOM 2026.06) + Material 3 · Navigation Compose �
 - **Limitações da fila offline**:
   - Uma mudança pendente recusada pelo servidor é descartada sem avisar o usuário. O ideal seria mostrar o que foi perdido.
   - Se uma criação estourar o tempo limite mas tiver sido feita no servidor, o reenvio recebe 409 e o download traz o dispositivo, mas um favorito marcado nesse meio-tempo se perde.
-  - Com a tela de Informações aberta, um dispositivo criado offline que recebe o id do servidor aparece como "não existe mais" até voltar para a lista.
   - A lista não indica quais dispositivos ainda aguardam envio.
 - **Acessibilidade**: descrições para leitor de tela e áreas de toque já estão nos componentes; falta uma revisão completa com TalkBack.
 - **Testes instrumentados** em aparelho (hoje todos os testes de UI e banco rodam com Robolectric).

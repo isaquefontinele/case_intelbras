@@ -273,6 +273,30 @@ class OfflineFirstDeviceRepositoryTest {
     }
 
     @Test
+    fun `a device created offline can still be used by its local id after the sync`() = runTest {
+        remote.failure = NetworkError.NoConnection()
+        repository.create(videoInput).getOrThrow()
+        val localId = devices().single().id
+        val observed = repository.observeDevice(localId).first()!!
+        remote.failure = null
+        repository.syncPending().getOrThrow()
+        val serverId = devices().single().id
+        assertTrue(localId != serverId)
+
+        assertEquals(serverId, repository.observeDevice(localId).first()?.id)
+
+        repository.setFavorite(localId, true)
+        assertTrue(devices().single().isFavorite)
+
+        repository.update(localId, videoInput.copy(name = "Renamed")).getOrThrow()
+        assertEquals("Renamed", remote.videos.getValue(serverId).name)
+
+        repository.delete(observed).getOrThrow()
+        assertTrue(devices().isEmpty())
+        assertTrue(remote.videos.isEmpty())
+    }
+
+    @Test
     fun `update without connection is shown and sent by the next refresh`() = runTest {
         seedServerAndRefresh()
         repository.setFavorite(camera.id, isFavorite = true)

@@ -1,10 +1,12 @@
 package com.isaquefontinele.devicemanager.core.database.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
 import com.isaquefontinele.devicemanager.core.database.entity.DeviceEntity
+import com.isaquefontinele.devicemanager.core.database.entity.DeviceIdAliasEntity
 import com.isaquefontinele.devicemanager.core.database.entity.DeviceWithFavorite
 import kotlinx.coroutines.flow.Flow
 
@@ -24,11 +26,13 @@ interface DeviceDao {
     )
     fun observeDevices(): Flow<List<DeviceWithFavorite>>
 
+    /** [id] can be the local id of a device that has since received its server id. */
     @Query(
         """
         SELECT devices.*, favorites.deviceId IS NOT NULL AS isFavorite
         FROM devices LEFT JOIN favorites ON favorites.deviceId = devices.id
-        WHERE devices.id = :id AND devices.syncState != 'PENDING_DELETE'
+        WHERE devices.id = COALESCE((SELECT serverId FROM device_id_aliases WHERE localId = :id), :id)
+            AND devices.syncState != 'PENDING_DELETE'
         """,
     )
     fun observeDevice(id: String): Flow<DeviceWithFavorite?>
@@ -36,6 +40,10 @@ interface DeviceDao {
     /** Includes rows pending deletion, which [observeDevices] hides. */
     @Query("SELECT * FROM devices WHERE id = :id")
     suspend fun getById(id: String): DeviceEntity?
+
+    /** The id to use for [id] now: differs when it was the local id of a device already sent to the server. */
+    @Query("SELECT COALESCE((SELECT serverId FROM device_id_aliases WHERE localId = :id), :id)")
+    suspend fun currentId(id: String): String
 
     /** Rows with a change the server has not received yet, oldest first. */
     @Query("SELECT * FROM devices WHERE syncState != 'SYNCED' ORDER BY rowid")
@@ -76,10 +84,14 @@ interface DeviceDao {
             .forEach { deleteByIds(it) }
     }
 
+    @Insert
+    suspend fun insertAlias(alias: DeviceIdAliasEntity)
+
     @Transaction
     suspend fun replaceLocalId(localId: String, device: DeviceEntity) {
         upsert(listOf(device))
         moveFavorite(localId, device.id)
         deleteById(localId)
+        insertAlias(DeviceIdAliasEntity(localId, device.id))
     }
 }
