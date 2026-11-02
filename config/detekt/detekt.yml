@@ -13,8 +13,9 @@ complexity:
     ignoreAnnotated: ['Composable']
   LongMethod:
     ignoreAnnotated: ['Composable']
+  # Room @Query methods are one-line SQL declarations, not logic.
   TooManyFunctions:
-    ignoreAnnotatedFunctions: ['Preview']
+    ignoreAnnotatedFunctions: ['Preview', 'Query']
     ignorePrivate: true
 
 style:

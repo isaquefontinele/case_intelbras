@@ -8,6 +8,13 @@ android {
     namespace = "com.isaquefontinele.devicemanager.core.database"
 }
 
+// The migration test opens the exported schemas.
+androidComponents {
+    onVariants { variant ->
+        variant.hostTests.values.forEach { it.sources.assets?.addStaticSourceDirectory("$projectDir/schemas") }
+    }
+}
+
 room {
     schemaDirectory("$projectDir/schemas")
 }

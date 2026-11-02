@@ -1,5 +1,6 @@
 package com.isaquefontinele.devicemanager.core.database.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.isaquefontinele.devicemanager.core.model.DeviceType
@@ -17,4 +18,5 @@ data class DeviceEntity(
     val macAddress: String? = null,
     val serial: String? = null,
     val username: String? = null,
+    @ColumnInfo(defaultValue = "SYNCED") val syncState: SyncState = SyncState.SYNCED,
 )

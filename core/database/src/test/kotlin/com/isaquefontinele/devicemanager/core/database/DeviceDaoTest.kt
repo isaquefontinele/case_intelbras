@@ -8,6 +8,7 @@ import app.cash.turbine.test
 import com.isaquefontinele.devicemanager.core.database.dao.DeviceDao
 import com.isaquefontinele.devicemanager.core.database.dao.FavoriteDao
 import com.isaquefontinele.devicemanager.core.database.entity.DeviceEntity
+import com.isaquefontinele.devicemanager.core.database.entity.SyncState
 import com.isaquefontinele.devicemanager.core.model.DeviceType
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -131,5 +132,51 @@ class DeviceDaoTest {
             deviceDao.deleteById("a1")
             assertNull(awaitItem())
         }
+    }
+
+    @Test
+    fun `devices pending deletion are hidden but still readable`() = runTest {
+        deviceDao.upsert(listOf(alarm.copy(syncState = SyncState.PENDING_DELETE), camera))
+
+        assertEquals(listOf("v1"), deviceDao.observeDevices().first().map { it.device.id })
+        assertNull(deviceDao.observeDevice("a1").first())
+        assertEquals(SyncState.PENDING_DELETE, deviceDao.getById("a1")!!.syncState)
+    }
+
+    @Test
+    fun `getPending returns only rows with a change not sent yet`() = runTest {
+        val created = camera.copy(id = "local-1", syncState = SyncState.PENDING_CREATE)
+        val updated = alarm.copy(syncState = SyncState.PENDING_UPDATE)
+        deviceDao.upsert(listOf(camera, created, updated))
+
+        assertEquals(listOf("local-1", "a1"), deviceDao.getPending().map { it.id })
+    }
+
+    @Test
+    fun `replaceAll keeps rows with a pending change`() = runTest {
+        val created = camera.copy(id = "local-1", syncState = SyncState.PENDING_CREATE)
+        val updated = alarm.copy(name = "Edited offline", syncState = SyncState.PENDING_UPDATE)
+        val deleted = camera.copy(syncState = SyncState.PENDING_DELETE)
+        deviceDao.upsert(listOf(created, updated, deleted))
+
+        deviceDao.replaceAll(listOf(alarm, camera))
+
+        assertEquals(
+            listOf(created, updated, deleted),
+            listOf("local-1", "a1", "v1").map { deviceDao.getById(it) },
+        )
+    }
+
+    @Test
+    fun `replaceLocalId swaps the row for the server copy and moves the favorite`() = runTest {
+        deviceDao.upsert(listOf(camera.copy(id = "local-1", syncState = SyncState.PENDING_CREATE)))
+        favoriteDao.setFavorite("local-1", isFavorite = true)
+
+        deviceDao.replaceLocalId("local-1", camera)
+
+        assertNull(deviceDao.getById("local-1"))
+        val device = deviceDao.observeDevice("v1").first()!!
+        assertEquals(camera, device.device)
+        assertEquals(true, device.isFavorite)
     }
 }
