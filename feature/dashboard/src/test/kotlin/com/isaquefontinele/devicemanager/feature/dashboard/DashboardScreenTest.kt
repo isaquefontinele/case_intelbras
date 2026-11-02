@@ -15,6 +15,7 @@ import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.isaquefontinele.devicemanager.core.designsystem.component.AppSnackbarHost
 import com.isaquefontinele.devicemanager.core.designsystem.theme.DeviceManagerTheme
+import com.isaquefontinele.devicemanager.core.insights.DeviceSummary
 import com.isaquefontinele.devicemanager.core.model.AlarmCentral
 import com.isaquefontinele.devicemanager.core.model.Device
 import com.isaquefontinele.devicemanager.core.model.VideoDevice
@@ -58,6 +59,13 @@ class DashboardScreenTest {
         composeRule.onNodeWithText("A0:B1:C2:D3:E4:F5").assertExists()
         composeRule.onNodeWithText("ABCDE123").assertExists()
         composeRule.onNodeWithText("Todos").assertIsSelected()
+    }
+
+    @Test
+    fun `summary shows only what exists`() {
+        setScreen(devicesState.copy(summary = DeviceSummary(cameras = 2, alarms = 0, favorites = 1)))
+
+        composeRule.onNodeWithText("2 câmeras · 1 favorito").assertExists()
     }
 
     @Test

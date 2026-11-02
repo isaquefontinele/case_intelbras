@@ -19,6 +19,7 @@ rootProject.name = "DeviceManager"
 
 include(":app")
 include(":core:model")
+include(":core:insights")
 include(":core:network")
 include(":core:database")
 include(":core:data")

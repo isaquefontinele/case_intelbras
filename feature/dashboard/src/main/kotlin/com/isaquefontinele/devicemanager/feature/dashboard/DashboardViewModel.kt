@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.isaquefontinele.devicemanager.core.data.DeviceRepository
 import com.isaquefontinele.devicemanager.core.data.WriteOutcome
+import com.isaquefontinele.devicemanager.core.insights.DeviceInfo
+import com.isaquefontinele.devicemanager.core.insights.summarize
 import com.isaquefontinele.devicemanager.core.model.Device
+import com.isaquefontinele.devicemanager.core.model.VideoDevice
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
@@ -34,6 +37,7 @@ class DashboardViewModel @Inject constructor(private val repository: DeviceRepos
                 query = controls.query,
                 filter = controls.filter,
                 totalDevicesCount = devices.size,
+                summary = summarize(devices.map { DeviceInfo(it is VideoDevice, it.isFavorite) }),
                 content = content(devices, controls, refresh),
                 isRefreshing = refresh.isRefreshing,
                 selectedDevice = controls.actionsFor,

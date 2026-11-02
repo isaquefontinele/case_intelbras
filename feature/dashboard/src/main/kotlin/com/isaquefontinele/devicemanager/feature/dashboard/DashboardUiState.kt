@@ -1,5 +1,6 @@
 package com.isaquefontinele.devicemanager.feature.dashboard
 
+import com.isaquefontinele.devicemanager.core.insights.DeviceSummary
 import com.isaquefontinele.devicemanager.core.model.Device
 
 enum class DeviceFilter { ALL, FAVORITES, CAMERAS, ALARMS }
@@ -8,6 +9,7 @@ data class DashboardUiState(
     val query: String = "",
     val filter: DeviceFilter = DeviceFilter.ALL,
     val totalDevicesCount: Int = 0,
+    val summary: DeviceSummary = DeviceSummary(),
     val content: DashboardContent = DashboardContent.Loading,
     val isRefreshing: Boolean = false,
     val selectedDevice: Device? = null,

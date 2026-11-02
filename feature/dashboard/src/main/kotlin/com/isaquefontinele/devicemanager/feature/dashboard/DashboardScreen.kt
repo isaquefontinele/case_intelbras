@@ -51,6 +51,7 @@ import com.isaquefontinele.devicemanager.core.designsystem.component.PillButtonS
 import com.isaquefontinele.devicemanager.core.designsystem.component.SearchField
 import com.isaquefontinele.devicemanager.core.designsystem.icon.AppIcons
 import com.isaquefontinele.devicemanager.core.designsystem.theme.DeviceManagerTheme
+import com.isaquefontinele.devicemanager.core.insights.DeviceSummary
 import com.isaquefontinele.devicemanager.core.model.AlarmCentral
 import com.isaquefontinele.devicemanager.core.model.Device
 import com.isaquefontinele.devicemanager.core.model.MacAddress
@@ -167,7 +168,7 @@ internal fun DashboardScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
             ) {
-                item(key = "header") { Header(state.totalDevicesCount) }
+                item(key = "header") { Header(state.totalDevicesCount, state.summary) }
                 if (state.totalDevicesCount > 0) {
                     item(key = "filters") { Filters(state, actions) }
                 }
@@ -232,7 +233,20 @@ internal fun DashboardScreen(
 }
 
 @Composable
-private fun Header(totalCount: Int) {
+private fun summaryText(summary: DeviceSummary): String = buildList {
+    if (summary.cameras > 0) {
+        add(pluralStringResource(R.plurals.dashboard_summary_cameras, summary.cameras, summary.cameras))
+    }
+    if (summary.alarms > 0) {
+        add(pluralStringResource(R.plurals.dashboard_summary_alarms, summary.alarms, summary.alarms))
+    }
+    if (summary.favorites > 0) {
+        add(pluralStringResource(R.plurals.dashboard_summary_favorites, summary.favorites, summary.favorites))
+    }
+}.joinToString(" · ")
+
+@Composable
+private fun Header(totalCount: Int, summary: DeviceSummary) {
     Column(Modifier.padding(top = 16.dp, bottom = 16.dp)) {
         Text(
             text = stringResource(R.string.dashboard_title),
@@ -249,6 +263,9 @@ private fun Header(totalCount: Int) {
             },
             style = MaterialTheme.typography.bodySmall,
         )
+        if (totalCount > 0) {
+            Text(text = summaryText(summary), style = MaterialTheme.typography.bodySmall)
+        }
     }
 }
 

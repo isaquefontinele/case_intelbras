@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.multiplatform) apply false
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ksp) apply false
@@ -16,7 +17,9 @@ detekt {
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
     source.setFrom(
         files(
-            subprojects.flatMap { listOf("${it.projectDir}/src/main/kotlin", "${it.projectDir}/src/test/kotlin") },
+            subprojects.flatMap { project ->
+                listOf("main", "test", "commonMain", "commonTest").map { "${project.projectDir}/src/$it/kotlin" }
+            },
         ),
     )
     parallel = true

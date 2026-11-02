@@ -47,7 +47,7 @@ Com um emulador ou aparelho conectado:
 Verificações (as mesmas do CI):
 
 ```bash
-./gradlew ktlintCheck detekt lintDebug testDebugUnitTest :core:model:test assembleDebug
+./gradlew ktlintCheck detekt lintDebug testDebugUnitTest :core:model:test :core:insights:jvmTest assembleDebug
 ```
 
 Os testes de UI (Compose) e de banco (Room) rodam na JVM com Robolectric, sem precisar de emulador.
@@ -83,6 +83,7 @@ MVVM com Coroutines/Flow, *offline-first*, com o Room como **fonte única de ver
 |---|---|
 | `:app` | Activity, navegação entre features, `Application` (Hilt) |
 | `:core:model` | Modelos de domínio e validação (Kotlin puro) |
+| `:core:insights` | Resumo dos dispositivos da lista, em Kotlin Multiplatform (alvos JVM e iOS) |
 | `:core:network` | Retrofit/OkHttp, DTOs, interceptor de autenticação, mapeamento de erros HTTP |
 | `:core:database` | Room: tabelas de dispositivos e favoritos, DAOs |
 | `:core:data` | Repositório *offline-first*, sincronização e fila de mudanças pendentes (WorkManager) |
@@ -97,7 +98,7 @@ As features não dependem umas das outras; só o `:app` as conhece e liga a nave
 
 ### Stack
 
-Kotlin 2.4 · Jetpack Compose (BOM 2026.06) + Material 3 · Navigation Compose · Hilt · Room · Retrofit 3 + OkHttp 5 · kotlinx.serialization · Coroutines/Flow · JUnit 4 + Robolectric + MockWebServer · ktlint · detekt · GitHub Actions.
+Kotlin 2.4 (com um módulo Multiplatform) · Jetpack Compose (BOM 2026.06) + Material 3 · Navigation Compose · Hilt · Room · Retrofit 3 + OkHttp 5 · kotlinx.serialization · Coroutines/Flow · JUnit 4 + Robolectric + MockWebServer · ktlint · detekt · GitHub Actions.
 
 ## Decisões
 
@@ -120,6 +121,7 @@ Kotlin 2.4 · Jetpack Compose (BOM 2026.06) + Material 3 · Navigation Compose �
 - **Token inválido.** A documentação fala em 403, mas a API responde **401**; o app trata os dois como "não autorizado".
 - **"Ativo" substituído por "Favorito".** O Figma mostra um status "Ativo" na tela de informações, mas a API não fornece esse dado. Para não exibir uma informação inventada, o cabeçalho mostra "★ Favorito" quando for o caso.
 - **Acessibilidade.** Revisei a árvore de semântica das telas, as áreas de toque (mínimo de 48 dp) e o layout com fonte em 200%. Um erro de validação também gera snackbar, porque o erro no campo só é lido quando o leitor de tela chega até ele. Os indicadores de carregamento são anunciados, e os valores da tela de Informações quebram linha em vez de serem cortados.
+- **Kotlin Multiplatform em um módulo novo.** O `:core:insights` calcula o resumo mostrado abaixo do contador da lista ("2 câmeras · 1 alarme · 1 favorito"), que não está no protótipo. Preferi algo novo e pequeno a migrar um módulo que já funcionava: o objetivo é mostrar a integração. Ele tem modelo próprio, sem depender do resto do app. O Android consome o alvo JVM, e os alvos iOS compilam e rodam os testes em `commonTest`, mas nenhum app iOS os usa. Os textos ficam nos recursos do Android, porque só a regra é compartilhada.
 - **Senha nunca exibida** na tela de informações.
 - **HTTP sem TLS.** A API só é servida em HTTP; o tráfego em texto puro é liberado apenas para esse host (`network_security_config.xml`).
 - **API lenta.** As respostas levam alguns segundos (~5 s nos testes), por isso os timeouts do OkHttp são folgados e a lista mostra os dados locais enquanto sincroniza.

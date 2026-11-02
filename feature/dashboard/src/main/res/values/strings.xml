@@ -6,6 +6,18 @@
         <item quantity="other">%d devices</item>
     </plurals>
     <string name="dashboard_device_count_zero">0 devices</string>
+    <plurals name="dashboard_summary_cameras">
+        <item quantity="one">%d camera</item>
+        <item quantity="other">%d cameras</item>
+    </plurals>
+    <plurals name="dashboard_summary_alarms">
+        <item quantity="one">%d alarm</item>
+        <item quantity="other">%d alarms</item>
+    </plurals>
+    <plurals name="dashboard_summary_favorites">
+        <item quantity="one">%d favorite</item>
+        <item quantity="other">%d favorites</item>
+    </plurals>
     <string name="dashboard_search">Search</string>
     <string name="dashboard_filter_all">All</string>
     <string name="dashboard_filter_favorites">Favorites</string>

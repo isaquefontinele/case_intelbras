@@ -3,6 +3,7 @@ package com.isaquefontinele.devicemanager.feature.dashboard
 import app.cash.turbine.test
 import com.isaquefontinele.devicemanager.core.data.DataError
 import com.isaquefontinele.devicemanager.core.data.WriteOutcome
+import com.isaquefontinele.devicemanager.core.insights.DeviceSummary
 import com.isaquefontinele.devicemanager.core.model.AlarmCentral
 import com.isaquefontinele.devicemanager.core.model.RejectedChange
 import com.isaquefontinele.devicemanager.core.model.VideoDevice
@@ -190,6 +191,15 @@ class DashboardViewModelTest {
             viewModel.onRemoveConfirm()
             assertEquals(DashboardMessage.DeviceRemovedOffline, awaitItem())
         }
+    }
+
+    @Test
+    fun `summary covers every device, not only the filtered ones`() = runTest(UnconfinedTestDispatcher()) {
+        val viewModel = viewModel(FakeDeviceRepository(all))
+
+        viewModel.onFilterChange(DeviceFilter.ALARMS)
+
+        assertEquals(DeviceSummary(cameras = 2, alarms = 1, favorites = 1), viewModel.uiState.value.summary)
     }
 
     @Test

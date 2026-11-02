@@ -5,3 +5,7 @@ plugins {
 android {
     namespace = "com.isaquefontinele.devicemanager.feature.dashboard"
 }
+
+dependencies {
+    implementation(project(":core:insights"))
+}
