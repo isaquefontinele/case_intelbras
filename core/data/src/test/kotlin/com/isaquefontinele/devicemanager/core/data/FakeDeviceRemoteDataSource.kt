@@ -12,6 +12,8 @@ class FakeDeviceRemoteDataSource : DeviceRemoteDataSource {
     val alarms = linkedMapOf<String, AlarmCentral>()
     val videos = linkedMapOf<String, VideoDevice>()
     var failure: NetworkError? = null
+    var failUpdates: NetworkError? = null
+    var failDeletes: NetworkError? = null
     var calls = 0
         private set
     private var nextId = 0
@@ -24,11 +26,13 @@ class FakeDeviceRemoteDataSource : DeviceRemoteDataSource {
     }
 
     override suspend fun updateAlarmCentral(id: String, input: DeviceInput.Alarm): AlarmCentral = call {
+        failUpdates?.let { throw it }
         if (id !in alarms) throw NetworkError.NotFound()
         AlarmCentral(id, input.name, input.macAddress, input.password).also { alarms[id] = it }
     }
 
     override suspend fun deleteAlarmCentral(id: String) = call {
+        failDeletes?.let { throw it }
         alarms.remove(id) ?: throw NetworkError.NotFound()
         Unit
     }
@@ -42,11 +46,13 @@ class FakeDeviceRemoteDataSource : DeviceRemoteDataSource {
     }
 
     override suspend fun updateVideoDevice(id: String, input: DeviceInput.Video): VideoDevice = call {
+        failUpdates?.let { throw it }
         if (id !in videos) throw NetworkError.NotFound()
         VideoDevice(id, input.name, input.serial, input.username, input.password).also { videos[id] = it }
     }
 
     override suspend fun deleteVideoDevice(id: String) = call {
+        failDeletes?.let { throw it }
         videos.remove(id) ?: throw NetworkError.NotFound()
         Unit
     }

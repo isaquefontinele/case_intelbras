@@ -44,6 +44,8 @@ class FakeDeviceRepository(devices: List<Device> = emptyList()) : DeviceReposito
         return refreshResult
     }
 
+    override suspend fun syncPending(): Result<Unit> = Result.success(Unit)
+
     override suspend fun create(input: DeviceInput): Result<Unit> {
         savedInputs += input
         saveGate?.await()

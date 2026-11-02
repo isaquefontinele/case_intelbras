@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.isaquefontinele.devicemanager.core.database.DeviceDatabase
+import com.isaquefontinele.devicemanager.core.database.entity.SyncState
 import com.isaquefontinele.devicemanager.core.model.AlarmCentral
 import com.isaquefontinele.devicemanager.core.model.Device
 import com.isaquefontinele.devicemanager.core.model.DeviceInput
@@ -54,6 +55,10 @@ class OfflineFirstDeviceRepositoryTest {
     }
 
     private suspend fun devices(): List<Device> = repository.observeDevices().first()
+
+    private suspend fun pendingIds(): List<String> = database.deviceDao().getPending().map { it.id }
+
+    private suspend fun syncState(id: String): SyncState? = database.deviceDao().getById(id)?.syncState
 
     private suspend fun seedServerAndRefresh() {
         remote.alarms[alarm.id] = alarm
@@ -192,12 +197,13 @@ class OfflineFirstDeviceRepositoryTest {
     @Test
     fun `failed delete keeps the local device`() = runTest {
         seedServerAndRefresh()
-        remote.failure = NetworkError.Timeout()
+        remote.failure = NetworkError.Server(500)
 
         val result = repository.delete(alarm)
 
-        assertTrue(result.exceptionOrNull() is DataError.Timeout)
+        assertTrue(result.exceptionOrNull() is DataError.Unexpected)
         assertEquals(listOf(camera, alarm), devices())
+        assertEquals(emptyList<String>(), pendingIds())
     }
 
     @Test
@@ -209,5 +215,212 @@ class OfflineFirstDeviceRepositoryTest {
 
         assertEquals(callsBefore, remote.calls)
         assertEquals(listOf(true, false), devices().map { it.isFavorite })
+    }
+
+    @Test
+    fun `create without connection is saved as pending and shown`() = runTest {
+        remote.failure = NetworkError.NoConnection()
+
+        assertTrue(repository.create(videoInput).isSuccess)
+
+        val device = devices().single() as VideoDevice
+        assertEquals("Door", device.name)
+        assertEquals(SyncState.PENDING_CREATE, syncState(device.id))
+    }
+
+    @Test
+    fun `invalid input is not saved as pending`() = runTest {
+        remote.failure = NetworkError.NoConnection()
+
+        val result = repository.create(videoInput.copy(serial = "short"))
+
+        assertTrue(result.exceptionOrNull() is DataError.Invalid)
+        assertEquals(emptyList<Device>(), devices())
+    }
+
+    @Test
+    fun `server errors are reported and not saved as pending`() = runTest {
+        remote.failure = NetworkError.Server(500)
+
+        assertTrue(repository.create(videoInput).isFailure)
+
+        assertEquals(emptyList<Device>(), devices())
+    }
+
+    @Test
+    fun `sync sends a device created offline and keeps its favorite under the server id`() = runTest {
+        remote.failure = NetworkError.NoConnection()
+        repository.create(videoInput).getOrThrow()
+        val localId = devices().single().id
+        repository.setFavorite(localId, isFavorite = true)
+        remote.failure = null
+
+        repository.syncPending().getOrThrow()
+
+        val created = remote.videos.values.single()
+        assertEquals(listOf<Device>(created.copy(isFavorite = true)), devices())
+        assertEquals(null, syncState(localId))
+        assertEquals(SyncState.SYNCED, syncState(created.id))
+    }
+
+    @Test
+    fun `update without connection is shown and sent by the next refresh`() = runTest {
+        seedServerAndRefresh()
+        repository.setFavorite(camera.id, isFavorite = true)
+        remote.failure = NetworkError.Timeout()
+
+        assertTrue(repository.update(camera.id, videoInput).isSuccess)
+
+        assertEquals(SyncState.PENDING_UPDATE, syncState(camera.id))
+        assertEquals("Door", repository.observeDevice(camera.id).first()?.name)
+        assertEquals("Garage", remote.videos.getValue(camera.id).name)
+
+        remote.failure = null
+        repository.refresh().getOrThrow()
+
+        assertEquals("Door", remote.videos.getValue(camera.id).name)
+        assertEquals(SyncState.SYNCED, syncState(camera.id))
+        assertEquals(true, repository.observeDevice(camera.id).first()?.isFavorite)
+    }
+
+    @Test
+    fun `delete without connection hides the device until the server confirms`() = runTest {
+        seedServerAndRefresh()
+        remote.failure = NetworkError.NoConnection()
+
+        assertTrue(repository.delete(alarm).isSuccess)
+
+        assertEquals(listOf<Device>(camera), devices())
+        assertEquals(SyncState.PENDING_DELETE, syncState(alarm.id))
+
+        remote.failure = null
+        repository.syncPending().getOrThrow()
+
+        assertTrue(alarm.id !in remote.alarms)
+        assertEquals(null, syncState(alarm.id))
+    }
+
+    @Test
+    fun `refresh does not bring back a device with a pending delete when sending fails`() = runTest {
+        seedServerAndRefresh()
+        remote.failure = NetworkError.NoConnection()
+        repository.delete(alarm).getOrThrow()
+        remote.failure = null
+        remote.failDeletes = NetworkError.Server(500)
+
+        repository.refresh().getOrThrow()
+
+        assertEquals(listOf<Device>(camera), devices())
+        assertEquals(listOf(alarm.id), pendingIds())
+    }
+
+    @Test
+    fun `editing a device created offline stays one create with the latest values`() = runTest {
+        remote.failure = NetworkError.NoConnection()
+        repository.create(videoInput).getOrThrow()
+        val localId = devices().single().id
+
+        repository.update(localId, videoInput.copy(name = "Front door")).getOrThrow()
+        assertEquals(SyncState.PENDING_CREATE, syncState(localId))
+
+        remote.failure = null
+        repository.syncPending().getOrThrow()
+
+        assertEquals("Front door", remote.videos.values.single().name)
+    }
+
+    @Test
+    fun `editing a pending device does not call the api`() = runTest {
+        seedServerAndRefresh()
+        remote.failure = NetworkError.NoConnection()
+        repository.update(camera.id, videoInput).getOrThrow()
+        val callsBefore = remote.calls
+
+        repository.update(camera.id, videoInput.copy(name = "Front door")).getOrThrow()
+
+        assertEquals(callsBefore, remote.calls)
+        assertEquals("Front door", repository.observeDevice(camera.id).first()?.name)
+    }
+
+    @Test
+    fun `deleting a device created offline never reaches the server`() = runTest {
+        remote.failure = NetworkError.NoConnection()
+        repository.create(videoInput).getOrThrow()
+        val device = devices().single()
+        remote.failure = null
+        val callsBefore = remote.calls
+
+        repository.delete(device).getOrThrow()
+
+        assertEquals(callsBefore, remote.calls)
+        assertEquals(emptyList<Device>(), devices())
+        assertEquals(emptyList<String>(), pendingIds())
+    }
+
+    @Test
+    fun `deleting a device with a pending update sends only the delete`() = runTest {
+        seedServerAndRefresh()
+        remote.failure = NetworkError.NoConnection()
+        repository.update(camera.id, videoInput).getOrThrow()
+        repository.delete(camera).getOrThrow()
+        remote.failure = null
+
+        repository.syncPending().getOrThrow()
+
+        assertTrue(camera.id !in remote.videos)
+        assertEquals(listOf<Device>(alarm), devices())
+    }
+
+    @Test
+    fun `failed sync keeps every pending change`() = runTest {
+        remote.failure = NetworkError.NoConnection()
+        repository.create(videoInput).getOrThrow()
+        repository.create(alarmInput).getOrThrow()
+
+        val result = repository.syncPending()
+
+        assertTrue(result.exceptionOrNull() is DataError.NoConnection)
+        assertEquals(2, pendingIds().size)
+    }
+
+    @Test
+    fun `refused create is discarded`() = runTest {
+        remote.failure = NetworkError.NoConnection()
+        repository.create(videoInput).getOrThrow()
+        remote.failure = null
+        val taken = VideoDevice("v9", "Other", videoInput.serial, "admin", "pw")
+        remote.videos[taken.id] = taken
+
+        repository.syncPending().getOrThrow()
+
+        assertEquals(listOf<Device>(taken), devices())
+        assertEquals(emptyList<String>(), pendingIds())
+    }
+
+    @Test
+    fun `refused update goes back to the server values`() = runTest {
+        seedServerAndRefresh()
+        remote.failure = NetworkError.NoConnection()
+        repository.update(camera.id, videoInput).getOrThrow()
+        remote.failure = null
+        remote.failUpdates = NetworkError.Conflict("duplicate")
+
+        repository.syncPending().getOrThrow()
+
+        assertEquals(camera, repository.observeDevice(camera.id).first())
+        assertEquals(emptyList<String>(), pendingIds())
+    }
+
+    @Test
+    fun `pending update of a device removed on the server is dropped`() = runTest {
+        seedServerAndRefresh()
+        remote.failure = NetworkError.NoConnection()
+        repository.update(camera.id, videoInput).getOrThrow()
+        remote.failure = null
+        remote.videos.clear()
+
+        repository.syncPending().getOrThrow()
+
+        assertEquals(null, syncState(camera.id))
     }
 }
