@@ -10,6 +10,7 @@ Desafio técnico proposto pela Intelbras: app Android (Kotlin + Jetpack Compose)
 - **Favoritos locais**, que persistem entre reinícios do app e sincronizações.
 - **Offline**: os últimos dados sincronizados continuam visíveis sem conexão, e criar, editar e remover funcionam sem rede. As mudanças são enviadas automaticamente quando a conexão volta, mesmo com o app fechado.
 - **Feedback** por snackbar e estados de carregando, lista vazia e erro; *pull to refresh* na lista.
+- **Tema claro e escuro**, seguindo a configuração do sistema.
 
 ## Requisitos
 
@@ -49,6 +50,12 @@ Verificações (as mesmas do CI):
 ```
 
 Os testes de UI (Compose) e de banco (Room) rodam na JVM com Robolectric, sem precisar de emulador.
+
+Para instalar a versão de release, com R8 (assinada com a chave de debug, só para avaliação):
+
+```bash
+./gradlew installRelease
+```
 
 ## Arquitetura
 
@@ -138,7 +145,6 @@ Kotlin 2.4 · Jetpack Compose (BOM 2026.06) + Material 3 · Navigation Compose �
   - Se uma criação estourar o tempo limite mas tiver sido feita no servidor, o reenvio recebe 409 e o download traz o dispositivo, mas um favorito marcado nesse meio-tempo se perde.
   - Com a tela de Informações aberta, um dispositivo criado offline que recebe o id do servidor aparece como "não existe mais" até voltar para a lista.
   - A lista não indica quais dispositivos ainda aguardam envio.
-- **Tema escuro**: as cores escuras existem no design system, mas as telas ainda não foram revisadas nesse modo.
 - **Acessibilidade**: descrições para leitor de tela e áreas de toque já estão nos componentes; falta uma revisão completa com TalkBack.
 - **Ícones definitivos** do Figma.
 - **Testes instrumentados** em aparelho (hoje todos os testes de UI e banco rodam com Robolectric).
