@@ -8,6 +8,8 @@ sealed interface Device {
     val name: String
     val password: String
     val isFavorite: Boolean
+
+    val isPendingSync: Boolean
     val type: DeviceType
 }
 
@@ -18,6 +20,7 @@ data class AlarmCentral(
     val macAddress: String,
     override val password: String,
     override val isFavorite: Boolean = false,
+    override val isPendingSync: Boolean = false,
 ) : Device {
     override val type: DeviceType get() = DeviceType.ALARM
 }
@@ -29,6 +32,7 @@ data class VideoDevice(
     val username: String,
     override val password: String,
     override val isFavorite: Boolean = false,
+    override val isPendingSync: Boolean = false,
 ) : Device {
     override val type: DeviceType get() = DeviceType.VIDEO
 }

@@ -37,6 +37,18 @@ class DeviceMappersTest {
     }
 
     @Test
+    fun `only rows with an unsent change are pending`() {
+        val video = VideoDevice(id = "v1", name = "Garage", serial = "ABC", username = "admin", password = "pw")
+        val entity = video.toEntity()
+
+        assertEquals(false, DeviceWithFavorite(entity, isFavorite = false).toDomain().isPendingSync)
+        SyncState.entries.filter { it != SyncState.SYNCED }.forEach { state ->
+            val pending = DeviceWithFavorite(entity.copy(syncState = state), isFavorite = false)
+            assertEquals(true, pending.toDomain().isPendingSync)
+        }
+    }
+
+    @Test
     fun `inputs survive the pending entity round trip`() {
         val alarm = DeviceInput.Alarm(name = "House", macAddress = "1A2B3C4D5E6F", password = "1234")
         val video = DeviceInput.Video(name = "Garage", serial = "ABC", username = "admin", password = "pw")

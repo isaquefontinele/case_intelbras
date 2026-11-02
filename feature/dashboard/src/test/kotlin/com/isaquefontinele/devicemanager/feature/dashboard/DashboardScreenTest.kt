@@ -5,8 +5,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -56,6 +58,18 @@ class DashboardScreenTest {
         composeRule.onNodeWithText("A0:B1:C2:D3:E4:F5").assertExists()
         composeRule.onNodeWithText("ABCDE123").assertExists()
         composeRule.onNodeWithText("Todos").assertIsSelected()
+    }
+
+    @Test
+    fun `only devices with a pending change are marked`() {
+        setScreen(
+            DashboardUiState(
+                totalDevicesCount = 2,
+                content = DashboardContent.Devices(listOf(alarm, camera.copy(isPendingSync = true))),
+            ),
+        )
+
+        composeRule.onAllNodesWithText("Aguardando envio").assertCountEquals(1)
     }
 
     @Test

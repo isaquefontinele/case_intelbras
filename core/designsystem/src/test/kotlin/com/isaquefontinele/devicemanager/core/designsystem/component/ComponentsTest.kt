@@ -104,4 +104,24 @@ class ComponentsTest {
 
         composeRule.onNodeWithContentDescription("Favorito").assertDoesNotExist()
     }
+
+    @Test
+    fun `status is shown when there is one`() {
+        composeRule.setContent {
+            DeviceManagerTheme {
+                DeviceListItem(
+                    name = "Câmera 1",
+                    detail = "ABC123",
+                    icon = AppIcons.Camera,
+                    isFavorite = false,
+                    actionsContentDescription = "Ações",
+                    onClick = {},
+                    onActionsClick = {},
+                    status = "Aguardando envio",
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Aguardando envio").assertExists()
+    }
 }

@@ -3,6 +3,7 @@
     <string name="deviceinfo_title">Informações</string>
     <string name="deviceinfo_back">Voltar</string>
     <string name="deviceinfo_favorite">Favorito</string>
+    <string name="deviceinfo_pending_sync">Aguardando envio</string>
     <string name="deviceinfo_type">Tipo</string>
     <string name="deviceinfo_type_video">Vídeo</string>
     <string name="deviceinfo_type_alarm">Alarme</string>

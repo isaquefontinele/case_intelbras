@@ -13,6 +13,7 @@
     <string name="dashboard_filter_alarms">Alarmes</string>
     <string name="dashboard_add">Adicionar</string>
     <string name="dashboard_device_actions">Ações de %s</string>
+    <string name="dashboard_pending_sync">Aguardando envio</string>
 
     <string name="dashboard_empty_title">Nenhum dispositivo cadastrado</string>
     <string name="dashboard_empty_text">Toque em Adicionar para cadastrar o primeiro.</string>

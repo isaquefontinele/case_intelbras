@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -121,6 +122,7 @@ fun DeviceListItem(
     onClick: () -> Unit,
     onActionsClick: () -> Unit,
     modifier: Modifier = Modifier,
+    status: String? = null,
 ) {
     Row(
         modifier = modifier
@@ -156,6 +158,9 @@ fun DeviceListItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
+            if (status != null) {
+                Text(text = status, style = MaterialTheme.typography.bodySmall, fontStyle = FontStyle.Italic)
+            }
         }
         IconButton(onClick = onActionsClick) {
             Icon(AppIcons.More, contentDescription = actionsContentDescription)

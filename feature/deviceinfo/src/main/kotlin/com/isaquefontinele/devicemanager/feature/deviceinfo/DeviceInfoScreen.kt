@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -156,6 +157,13 @@ private fun HeaderCard(device: Device) {
                         Spacer(Modifier.width(4.dp))
                         Text(stringResource(R.string.deviceinfo_favorite), style = MaterialTheme.typography.bodySmall)
                     }
+                }
+                if (device.isPendingSync) {
+                    Text(
+                        text = stringResource(R.string.deviceinfo_pending_sync),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontStyle = FontStyle.Italic,
+                    )
                 }
             }
         }

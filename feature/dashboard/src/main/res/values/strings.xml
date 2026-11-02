@@ -13,6 +13,7 @@
     <string name="dashboard_filter_alarms">Alarms</string>
     <string name="dashboard_add">Add</string>
     <string name="dashboard_device_actions">Actions for %s</string>
+    <string name="dashboard_pending_sync">Waiting to sync</string>
 
     <string name="dashboard_empty_title">No devices yet</string>
     <string name="dashboard_empty_text">Tap Add to register the first one.</string>

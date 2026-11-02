@@ -61,6 +61,7 @@ fun DeviceWithFavorite.toDomain(): Device = when (device.type) {
         macAddress = device.macAddress.orEmpty(),
         password = device.password,
         isFavorite = isFavorite,
+        isPendingSync = device.syncState != SyncState.SYNCED,
     )
     DeviceType.VIDEO -> VideoDevice(
         id = device.id,
@@ -69,5 +70,6 @@ fun DeviceWithFavorite.toDomain(): Device = when (device.type) {
         username = device.username.orEmpty(),
         password = device.password,
         isFavorite = isFavorite,
+        isPendingSync = device.syncState != SyncState.SYNCED,
     )
 }

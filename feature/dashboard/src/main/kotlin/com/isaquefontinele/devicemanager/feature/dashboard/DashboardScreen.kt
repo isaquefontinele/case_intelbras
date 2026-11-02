@@ -295,6 +295,7 @@ private fun DeviceRow(
             actionsContentDescription = stringResource(R.string.dashboard_device_actions, device.name),
             onClick = { actions.onDeviceClick(device) },
             onActionsClick = { actions.onShowActions(device) },
+            status = if (device.isPendingSync) stringResource(R.string.dashboard_pending_sync) else null,
         )
         if (!isLast) ListDivider()
     }

@@ -1,5 +1,8 @@
 package com.isaquefontinele.devicemanager.feature.deviceinfo
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -70,6 +73,21 @@ class DeviceInfoScreenTest {
         copyRow.performClick()
 
         assertEquals(listOf("MAC Address" to "A0:B1:C2:D3:E4:F5"), copied)
+    }
+
+    @Test
+    fun `pending change is shown only while it is pending`() {
+        var device by mutableStateOf(camera.copy(isPendingSync = true))
+        composeRule.setContent {
+            DeviceManagerTheme {
+                DeviceInfoScreen(state = DeviceInfoUiState.Content(device), onBack = {}, onCopy = { _, _ -> })
+            }
+        }
+
+        composeRule.onNodeWithText("Aguardando envio", useUnmergedTree = true).assertExists()
+
+        device = camera
+        composeRule.onNodeWithText("Aguardando envio", useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test

@@ -8,7 +8,7 @@ Desafio técnico proposto pela Intelbras: app Android (Kotlin + Jetpack Compose)
 - **Adicionar, editar e remover** câmeras e alarmes, com validação dos campos antes de enviar e erros da API exibidos no campo correspondente (ex.: MAC ou número de série já cadastrado).
 - **Informações do dispositivo**, com ação de copiar o MAC Address ou o número de série.
 - **Favoritos locais**, que persistem entre reinícios do app e sincronizações.
-- **Offline**: os últimos dados sincronizados continuam visíveis sem conexão, e criar, editar e remover funcionam sem rede. As mudanças são enviadas automaticamente quando a conexão volta, mesmo com o app fechado.
+- **Offline**: os últimos dados sincronizados continuam visíveis sem conexão, e criar, editar e remover funcionam sem rede. As mudanças são enviadas automaticamente quando a conexão volta, mesmo com o app fechado. A lista e a tela de Informações mostram o que ainda aguarda envio.
 - **Feedback** por snackbar e estados de carregando, lista vazia e erro; *pull to refresh* na lista.
 - **Tema claro e escuro**, seguindo a configuração do sistema.
 - **Português e inglês**, seguindo o idioma do sistema.
@@ -145,7 +145,6 @@ Kotlin 2.4 · Jetpack Compose (BOM 2026.06) + Material 3 · Navigation Compose �
 - **Limitações da fila offline**:
   - Uma mudança pendente recusada pelo servidor é descartada sem avisar o usuário. O ideal seria mostrar o que foi perdido.
   - Se uma criação estourar o tempo limite mas tiver sido feita no servidor, o reenvio recebe 409 e o download traz o dispositivo, mas um favorito marcado nesse meio-tempo se perde.
-  - A lista não indica quais dispositivos ainda aguardam envio.
 - **Acessibilidade**: descrições para leitor de tela e áreas de toque já estão nos componentes; falta uma revisão completa com TalkBack.
 - **Testes instrumentados** em aparelho (hoje todos os testes de UI e banco rodam com Robolectric).
 
