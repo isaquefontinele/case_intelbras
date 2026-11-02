@@ -122,12 +122,13 @@ fun DeviceListItem(
     onClick: () -> Unit,
     onActionsClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onClickLabel: String? = null,
     status: String? = null,
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(onClickLabel = onClickLabel, onClick = onClick)
             .padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

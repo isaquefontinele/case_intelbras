@@ -119,6 +119,7 @@ Kotlin 2.4 · Jetpack Compose (BOM 2026.06) + Material 3 · Navigation Compose �
 - **Dispositivo removido por outra pessoa.** Editar um dispositivo que não existe mais no servidor (404) remove a cópia local e avisa na lista. Remover um que já não existe é tratado como sucesso.
 - **Token inválido.** A documentação fala em 403, mas a API responde **401**; o app trata os dois como "não autorizado".
 - **"Ativo" substituído por "Favorito".** O Figma mostra um status "Ativo" na tela de informações, mas a API não fornece esse dado. Para não exibir uma informação inventada, o cabeçalho mostra "★ Favorito" quando for o caso.
+- **Acessibilidade.** Revisei a árvore de semântica das telas, as áreas de toque (mínimo de 48 dp) e o layout com fonte em 200%. Um erro de validação também gera snackbar, porque o erro no campo só é lido quando o leitor de tela chega até ele. Os indicadores de carregamento são anunciados, e os valores da tela de Informações quebram linha em vez de serem cortados.
 - **Senha nunca exibida** na tela de informações.
 - **HTTP sem TLS.** A API só é servida em HTTP; o tráfego em texto puro é liberado apenas para esse host (`network_security_config.xml`).
 - **API lenta.** As respostas levam alguns segundos (~5 s nos testes), por isso os timeouts do OkHttp são folgados e a lista mostra os dados locais enquanto sincroniza.
@@ -144,7 +145,7 @@ Kotlin 2.4 · Jetpack Compose (BOM 2026.06) + Material 3 · Navigation Compose �
 
 - **Limitações da fila offline**:
   - Se uma criação estourar o tempo limite mas tiver sido feita no servidor, o reenvio recebe 409. O download traz o dispositivo, mas um favorito marcado nesse meio-tempo se perde e o usuário vê o aviso de recusa sem necessidade.
-- **Acessibilidade**: descrições para leitor de tela e áreas de toque já estão nos componentes; falta uma revisão completa com TalkBack.
+- **Acessibilidade**: os problemas achados na revisão foram corrigidos (ver Decisões), mas falta uma rodada completa com TalkBack feita por quem usa leitor de tela no dia a dia.
 - **Testes instrumentados** em aparelho (hoje todos os testes de UI e banco rodam com Robolectric).
 
 ## O que eu melhoraria com mais tempo

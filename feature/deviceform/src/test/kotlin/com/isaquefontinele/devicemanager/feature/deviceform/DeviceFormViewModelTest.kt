@@ -174,6 +174,17 @@ class DeviceFormViewModelTest {
     }
 
     @Test
+    fun `invalid fields are also reported as an event, for screen readers`() = runTest {
+        repository.createResult = Result.failure(DataError.Invalid(mapOf(DeviceField.NAME to FieldError.REQUIRED)))
+        val viewModel = newForm()
+
+        viewModel.events.test {
+            viewModel.onSave()
+            assertEquals(DeviceFormEvent.SaveFailed(FormError.INVALID_FIELDS), awaitItem())
+        }
+    }
+
+    @Test
     fun `save is ignored while a save is running`() = runTest {
         val viewModel = newForm()
         repository.saveGate = CompletableDeferred()

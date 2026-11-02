@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -123,5 +124,42 @@ class ComponentsTest {
         }
 
         composeRule.onNodeWithText("Aguardando envio").assertExists()
+    }
+
+    @Test
+    fun `search field keeps its name for screen readers after typing`() {
+        composeRule.setContent {
+            DeviceManagerTheme { SearchField(query = "asd", onQueryChange = {}, placeholder = "Pesquisar") }
+        }
+
+        composeRule.onNodeWithContentDescription("Pesquisar").assertExists()
+    }
+
+    @Test
+    fun `row announces what a click does`() {
+        composeRule.setContent {
+            DeviceManagerTheme {
+                DeviceListItem(
+                    name = "Câmera 1",
+                    detail = "ABC123",
+                    icon = AppIcons.Camera,
+                    isFavorite = false,
+                    actionsContentDescription = "Ações",
+                    onClick = {},
+                    onActionsClick = {},
+                    onClickLabel = "Informações",
+                )
+            }
+        }
+
+        val onClick = composeRule.onNodeWithText("Câmera 1").fetchSemanticsNode().config[SemanticsActions.OnClick]
+        assertEquals("Informações", onClick.label)
+    }
+
+    @Test
+    fun `loading indicator is announced`() {
+        composeRule.setContent { DeviceManagerTheme { LoadingIndicator() } }
+
+        composeRule.onNodeWithContentDescription("Carregando").assertExists()
     }
 }

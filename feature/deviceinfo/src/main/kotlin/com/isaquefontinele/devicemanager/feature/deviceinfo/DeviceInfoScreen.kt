@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -38,7 +37,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -46,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.isaquefontinele.devicemanager.core.designsystem.component.AppSnackbarHost
 import com.isaquefontinele.devicemanager.core.designsystem.component.AppTopBar
 import com.isaquefontinele.devicemanager.core.designsystem.component.DeviceTypeIcon
+import com.isaquefontinele.devicemanager.core.designsystem.component.LoadingIndicator
 import com.isaquefontinele.devicemanager.core.designsystem.icon.AppIcons
 import com.isaquefontinele.devicemanager.core.designsystem.theme.DeviceManagerTheme
 import com.isaquefontinele.devicemanager.core.model.AlarmCentral
@@ -103,7 +102,7 @@ internal fun DeviceInfoScreen(
                 .padding(padding),
         ) {
             when (state) {
-                DeviceInfoUiState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+                DeviceInfoUiState.Loading -> LoadingIndicator(Modifier.align(Alignment.Center))
                 DeviceInfoUiState.NotFound -> Text(
                     text = stringResource(R.string.deviceinfo_not_found),
                     style = MaterialTheme.typography.bodyMedium,
@@ -144,7 +143,7 @@ private fun HeaderCard(device: Device) {
         Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             DeviceTypeIcon(if (device is VideoDevice) AppIcons.Camera else AppIcons.Alarm)
             Spacer(Modifier.width(12.dp))
-            Column {
+            Column(Modifier.semantics(mergeDescendants = true) {}) {
                 Text(device.name, style = MaterialTheme.typography.titleSmall)
                 if (device.isFavorite) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -213,8 +212,6 @@ private fun DetailRow(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.End,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
         )
         trailing?.invoke()

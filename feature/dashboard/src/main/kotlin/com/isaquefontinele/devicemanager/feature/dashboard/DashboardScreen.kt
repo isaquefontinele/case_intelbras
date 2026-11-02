@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -45,6 +45,7 @@ import com.isaquefontinele.devicemanager.core.designsystem.component.ConfirmDial
 import com.isaquefontinele.devicemanager.core.designsystem.component.DeviceListItem
 import com.isaquefontinele.devicemanager.core.designsystem.component.ListCardItem
 import com.isaquefontinele.devicemanager.core.designsystem.component.ListDivider
+import com.isaquefontinele.devicemanager.core.designsystem.component.LoadingIndicator
 import com.isaquefontinele.devicemanager.core.designsystem.component.PillButton
 import com.isaquefontinele.devicemanager.core.designsystem.component.PillButtonStyle
 import com.isaquefontinele.devicemanager.core.designsystem.component.SearchField
@@ -260,7 +261,9 @@ private fun Filters(state: DashboardUiState, actions: DashboardActions) {
             placeholder = stringResource(R.string.dashboard_search),
         )
         LazyRow(
-            modifier = Modifier.padding(top = 12.dp),
+            modifier = Modifier
+                .padding(top = 12.dp)
+                .selectableGroup(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(DeviceFilter.entries.size) { index ->
@@ -295,6 +298,7 @@ private fun DeviceRow(
             actionsContentDescription = stringResource(R.string.dashboard_device_actions, device.name),
             onClick = { actions.onDeviceClick(device) },
             onActionsClick = { actions.onShowActions(device) },
+            onClickLabel = stringResource(R.string.dashboard_action_info),
             status = if (device.isPendingSync) stringResource(R.string.dashboard_pending_sync) else null,
         )
         if (!isLast) ListDivider()
@@ -309,7 +313,7 @@ private fun Loading() {
             .padding(vertical = 48.dp),
         contentAlignment = Alignment.Center,
     ) {
-        CircularProgressIndicator()
+        LoadingIndicator()
     }
 }
 

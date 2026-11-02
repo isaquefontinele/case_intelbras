@@ -107,7 +107,10 @@ class DeviceFormViewModel @Inject constructor(
 
     private suspend fun handleFailure(error: Throwable) {
         when (error) {
-            is DataError.Invalid -> _uiState.update { it.copy(errors = error.errors) }
+            is DataError.Invalid -> {
+                _uiState.update { it.copy(errors = error.errors) }
+                eventChannel.send(DeviceFormEvent.SaveFailed(FormError.INVALID_FIELDS))
+            }
             is DataError.NotFound -> eventChannel.send(DeviceFormEvent.DeviceNotFound)
             is DataError.NoConnection, is DataError.Timeout ->
                 eventChannel.send(DeviceFormEvent.SaveFailed(FormError.NO_CONNECTION))

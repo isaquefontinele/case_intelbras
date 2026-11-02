@@ -23,6 +23,7 @@
     <string name="deviceform_error_serial_in_use">This serial number is already registered</string>
     <string name="deviceform_error_in_use">Value already registered on another device</string>
 
+    <string name="deviceform_save_failed_invalid_fields">Check the highlighted fields</string>
     <string name="deviceform_save_failed_no_connection">No connection. The device was not saved.</string>
     <string name="deviceform_save_failed_unauthorized">Access denied. Check the API token.</string>
     <string name="deviceform_save_failed">Could not save the device.</string>

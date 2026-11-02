@@ -18,7 +18,7 @@ data class DeviceFormUiState(
     val isSaving: Boolean = false,
 )
 
-enum class FormError { NO_CONNECTION, UNAUTHORIZED, NOT_FOUND, UNEXPECTED }
+enum class FormError { INVALID_FIELDS, NO_CONNECTION, UNAUTHORIZED, NOT_FOUND, UNEXPECTED }
 
 sealed interface DeviceFormEvent {
     data class Saved(val isNew: Boolean, val isQueued: Boolean = false) : DeviceFormEvent

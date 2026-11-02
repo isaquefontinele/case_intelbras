@@ -20,6 +20,7 @@ internal fun FieldError.messageRes(field: DeviceField): Int = when (this) {
 
 @StringRes
 internal fun FormError.messageRes(): Int = when (this) {
+    FormError.INVALID_FIELDS -> R.string.deviceform_save_failed_invalid_fields
     FormError.NO_CONNECTION -> R.string.deviceform_save_failed_no_connection
     FormError.UNAUTHORIZED -> R.string.deviceform_save_failed_unauthorized
     FormError.NOT_FOUND, FormError.UNEXPECTED -> R.string.deviceform_save_failed

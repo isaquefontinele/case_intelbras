@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -34,6 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.isaquefontinele.devicemanager.core.designsystem.component.AppSnackbarHost
 import com.isaquefontinele.devicemanager.core.designsystem.component.AppTextField
 import com.isaquefontinele.devicemanager.core.designsystem.component.AppTopBar
+import com.isaquefontinele.devicemanager.core.designsystem.component.LoadingIndicator
 import com.isaquefontinele.devicemanager.core.designsystem.component.SegmentedSelector
 import com.isaquefontinele.devicemanager.core.designsystem.icon.AppIcons
 import com.isaquefontinele.devicemanager.core.designsystem.theme.DeviceManagerTheme
@@ -122,7 +122,7 @@ internal fun DeviceFormScreen(
                     .padding(padding),
                 contentAlignment = Alignment.Center,
             ) {
-                CircularProgressIndicator()
+                LoadingIndicator()
             }
         } else {
             Column(

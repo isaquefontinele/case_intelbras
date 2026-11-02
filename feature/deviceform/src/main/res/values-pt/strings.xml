@@ -23,6 +23,7 @@
     <string name="deviceform_error_serial_in_use">Este número de série já está cadastrado</string>
     <string name="deviceform_error_in_use">Valor já cadastrado em outro dispositivo</string>
 
+    <string name="deviceform_save_failed_invalid_fields">Verifique os campos destacados</string>
     <string name="deviceform_save_failed_no_connection">Sem conexão. O dispositivo não foi salvo.</string>
     <string name="deviceform_save_failed_unauthorized">Acesso negado. Verifique o token da API.</string>
     <string name="deviceform_save_failed">Não foi possível salvar o dispositivo.</string>
