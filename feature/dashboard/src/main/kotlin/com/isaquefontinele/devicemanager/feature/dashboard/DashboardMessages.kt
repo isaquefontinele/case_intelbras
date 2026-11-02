@@ -1,5 +1,6 @@
 package com.isaquefontinele.devicemanager.feature.dashboard
 
+import android.content.res.Resources
 import androidx.annotation.StringRes
 import com.isaquefontinele.devicemanager.feature.dashboard.navigation.DashboardNotice
 
@@ -25,6 +26,12 @@ internal fun DashboardMessage.messageRes(): Int = when (this) {
     }
     is DashboardMessage.FavoriteChanged ->
         if (isFavorite) R.string.dashboard_favorite_added else R.string.dashboard_favorite_removed
+    is DashboardMessage.ChangeRejected -> R.string.dashboard_change_rejected
+}
+
+internal fun DashboardMessage.text(resources: Resources): String = when (this) {
+    is DashboardMessage.ChangeRejected -> resources.getString(messageRes(), deviceName)
+    else -> resources.getString(messageRes())
 }
 
 @StringRes

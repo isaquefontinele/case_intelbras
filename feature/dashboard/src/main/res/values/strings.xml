@@ -46,6 +46,7 @@
     <string name="dashboard_device_not_found">This device no longer exists.</string>
     <string name="dashboard_device_removed">Device removed</string>
     <string name="dashboard_device_removed_offline">Removed. It will sync when there is a connection</string>
+    <string name="dashboard_change_rejected">The server refused the change to %s, so it was undone</string>
     <string name="dashboard_remove_failed">Could not remove the device.</string>
     <string name="dashboard_favorite_added">Marked as favorite</string>
     <string name="dashboard_favorite_removed">Removed from favorites</string>

@@ -71,7 +71,7 @@ internal fun DashboardRoute(
     val resources = LocalResources.current
 
     LaunchedEffect(viewModel) {
-        viewModel.messages.collect { snackbarHostState.showSnackbar(resources.getString(it.messageRes())) }
+        viewModel.messages.collect { snackbarHostState.showSnackbar(it.text(resources)) }
     }
     NoticeEffect(notice, onNoticeShown, snackbarHostState)
 

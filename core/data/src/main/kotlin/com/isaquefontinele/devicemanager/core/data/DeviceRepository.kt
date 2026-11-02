@@ -2,6 +2,7 @@ package com.isaquefontinele.devicemanager.core.data
 
 import com.isaquefontinele.devicemanager.core.model.Device
 import com.isaquefontinele.devicemanager.core.model.DeviceInput
+import com.isaquefontinele.devicemanager.core.model.RejectedChange
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -18,6 +19,11 @@ interface DeviceRepository {
     /** Emits `null` when the device does not exist (or was removed). */
     fun observeDevice(id: String): Flow<Device?>
 
+    /** Pending changes the server refused, until each one is passed to [acknowledgeRejectedChange]. */
+    fun observeRejectedChanges(): Flow<List<RejectedChange>>
+
+    suspend fun acknowledgeRejectedChange(id: Long)
+
     /**
      * Tries to send pending changes, then downloads both device lists and replaces the local copy. On failure
      * the cached data is kept.
@@ -27,7 +33,7 @@ interface DeviceRepository {
     /**
      * Sends pending changes in order and downloads the lists. Fails, keeping what was not sent, when the server
      * cannot take them yet. Changes the server refuses (409, other 4xx) cannot succeed on a retry and are
-     * discarded: the device goes back to what the server has.
+     * discarded: the device goes back to what the server has, and [observeRejectedChanges] reports them.
      */
     suspend fun syncPending(): Result<Unit>
 

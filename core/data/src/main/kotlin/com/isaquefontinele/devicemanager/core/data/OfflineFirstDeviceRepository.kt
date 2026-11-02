@@ -3,7 +3,9 @@ package com.isaquefontinele.devicemanager.core.data
 import com.isaquefontinele.devicemanager.core.data.sync.SyncScheduler
 import com.isaquefontinele.devicemanager.core.database.dao.DeviceDao
 import com.isaquefontinele.devicemanager.core.database.dao.FavoriteDao
+import com.isaquefontinele.devicemanager.core.database.dao.RejectedChangeDao
 import com.isaquefontinele.devicemanager.core.database.entity.DeviceEntity
+import com.isaquefontinele.devicemanager.core.database.entity.RejectedChangeEntity
 import com.isaquefontinele.devicemanager.core.database.entity.SyncState
 import com.isaquefontinele.devicemanager.core.database.entity.toDomain
 import com.isaquefontinele.devicemanager.core.database.entity.toEntity
@@ -11,6 +13,7 @@ import com.isaquefontinele.devicemanager.core.database.entity.toInput
 import com.isaquefontinele.devicemanager.core.model.Device
 import com.isaquefontinele.devicemanager.core.model.DeviceInput
 import com.isaquefontinele.devicemanager.core.model.DeviceType
+import com.isaquefontinele.devicemanager.core.model.RejectedChange
 import com.isaquefontinele.devicemanager.core.model.validation.DeviceInputValidator
 import com.isaquefontinele.devicemanager.core.model.validation.normalized
 import com.isaquefontinele.devicemanager.core.network.DeviceRemoteDataSource
@@ -28,6 +31,7 @@ internal class OfflineFirstDeviceRepository @Inject constructor(
     private val remote: DeviceRemoteDataSource,
     private val deviceDao: DeviceDao,
     private val favoriteDao: FavoriteDao,
+    private val rejectedChangeDao: RejectedChangeDao,
     private val syncScheduler: SyncScheduler,
 ) : DeviceRepository {
 
@@ -41,6 +45,11 @@ internal class OfflineFirstDeviceRepository @Inject constructor(
         deviceDao.observeDevices().map { devices -> devices.map { it.toDomain() } }
 
     override fun observeDevice(id: String): Flow<Device?> = deviceDao.observeDevice(id).map { it?.toDomain() }
+
+    override fun observeRejectedChanges(): Flow<List<RejectedChange>> =
+        rejectedChangeDao.observeAll().map { changes -> changes.map { RejectedChange(it.id, it.deviceName) } }
+
+    override suspend fun acknowledgeRejectedChange(id: Long) = rejectedChangeDao.delete(id)
 
     override suspend fun refresh(): Result<Unit> = runCatchingData {
         writeLock.withLock {
@@ -158,6 +167,7 @@ internal class OfflineFirstDeviceRepository @Inject constructor(
                 sendUpdateOrDropLocal(pending.id, pending.toInput())
             } catch (_: NetworkError.NotFound) {
                 // Removed elsewhere, and sendUpdateOrDropLocal already dropped the local copy.
+                rejectedChangeDao.insert(RejectedChangeEntity(deviceName = pending.name))
             }
             SyncState.PENDING_DELETE -> sendDeleteAndDropLocal(pending)
             SyncState.SYNCED -> Unit
@@ -165,6 +175,7 @@ internal class OfflineFirstDeviceRepository @Inject constructor(
     }
 
     private suspend fun discardChange(pending: DeviceEntity) {
+        rejectedChangeDao.insert(RejectedChangeEntity(deviceName = pending.name))
         if (pending.syncState == SyncState.PENDING_CREATE) {
             deviceDao.deleteById(pending.id)
         } else {

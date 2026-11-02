@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.isaquefontinele.devicemanager.core.database.DeviceDatabase
 import com.isaquefontinele.devicemanager.core.database.dao.DeviceDao
 import com.isaquefontinele.devicemanager.core.database.dao.FavoriteDao
+import com.isaquefontinele.devicemanager.core.database.dao.RejectedChangeDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,4 +27,7 @@ internal object DatabaseModule {
 
     @Provides
     fun provideFavoriteDao(database: DeviceDatabase): FavoriteDao = database.favoriteDao()
+
+    @Provides
+    fun provideRejectedChangeDao(database: DeviceDatabase): RejectedChangeDao = database.rejectedChangeDao()
 }

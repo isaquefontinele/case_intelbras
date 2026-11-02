@@ -52,6 +52,7 @@ class OfflineFirstDeviceRepositoryTest {
             remote,
             database.deviceDao(),
             database.favoriteDao(),
+            database.rejectedChangeDao(),
             SyncScheduler { scheduledSyncs++ },
         )
     }
@@ -66,6 +67,9 @@ class OfflineFirstDeviceRepositoryTest {
     private suspend fun pendingIds(): List<String> = database.deviceDao().getPending().map { it.id }
 
     private suspend fun syncState(id: String): SyncState? = database.deviceDao().getById(id)?.syncState
+
+    private suspend fun rejectedNames(): List<String> =
+        repository.observeRejectedChanges().first().map { it.deviceName }
 
     private suspend fun seedServerAndRefresh() {
         remote.alarms[alarm.id] = alarm
@@ -432,6 +436,30 @@ class OfflineFirstDeviceRepositoryTest {
 
         assertEquals(listOf<Device>(taken), devices())
         assertEquals(emptyList<String>(), pendingIds())
+        assertEquals(listOf(videoInput.name), rejectedNames())
+    }
+
+    @Test
+    fun `a failed sync is not reported as refused`() = runTest {
+        remote.failure = NetworkError.NoConnection()
+        repository.create(videoInput).getOrThrow()
+
+        repository.syncPending()
+
+        assertEquals(emptyList<String>(), rejectedNames())
+    }
+
+    @Test
+    fun `an acknowledged refusal is no longer reported`() = runTest {
+        remote.failure = NetworkError.NoConnection()
+        repository.create(videoInput).getOrThrow()
+        remote.failure = null
+        remote.videos["v9"] = VideoDevice("v9", "Other", videoInput.serial, "admin", "pw")
+        repository.syncPending().getOrThrow()
+
+        repository.acknowledgeRejectedChange(repository.observeRejectedChanges().first().single().id)
+
+        assertEquals(emptyList<String>(), rejectedNames())
     }
 
     @Test
@@ -446,6 +474,7 @@ class OfflineFirstDeviceRepositoryTest {
 
         assertEquals(camera, repository.observeDevice(camera.id).first())
         assertEquals(emptyList<String>(), pendingIds())
+        assertEquals(listOf(videoInput.name), rejectedNames())
     }
 
     @Test
@@ -459,5 +488,6 @@ class OfflineFirstDeviceRepositoryTest {
         repository.syncPending().getOrThrow()
 
         assertEquals(null, syncState(camera.id))
+        assertEquals(listOf(videoInput.name), rejectedNames())
     }
 }

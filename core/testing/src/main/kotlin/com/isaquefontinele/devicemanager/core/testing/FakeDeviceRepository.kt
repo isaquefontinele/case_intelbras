@@ -5,6 +5,7 @@ import com.isaquefontinele.devicemanager.core.data.WriteOutcome
 import com.isaquefontinele.devicemanager.core.model.AlarmCentral
 import com.isaquefontinele.devicemanager.core.model.Device
 import com.isaquefontinele.devicemanager.core.model.DeviceInput
+import com.isaquefontinele.devicemanager.core.model.RejectedChange
 import com.isaquefontinele.devicemanager.core.model.VideoDevice
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.update
 class FakeDeviceRepository(devices: List<Device> = emptyList()) : DeviceRepository {
 
     val devices = MutableStateFlow(devices)
+    val rejectedChanges = MutableStateFlow(emptyList<RejectedChange>())
 
     /** Result of the next refreshes. */
     var refreshResult: Result<Unit> = Result.success(Unit)
@@ -38,6 +40,12 @@ class FakeDeviceRepository(devices: List<Device> = emptyList()) : DeviceReposito
     override fun observeDevices(): Flow<List<Device>> = devices
 
     override fun observeDevice(id: String): Flow<Device?> = devices.map { list -> list.find { it.id == id } }
+
+    override fun observeRejectedChanges(): Flow<List<RejectedChange>> = rejectedChanges
+
+    override suspend fun acknowledgeRejectedChange(id: Long) {
+        rejectedChanges.update { list -> list.filterNot { it.id == id } }
+    }
 
     override suspend fun refresh(): Result<Unit> {
         refreshCalls++

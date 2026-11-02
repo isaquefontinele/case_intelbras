@@ -17,6 +17,7 @@ import com.isaquefontinele.devicemanager.core.data.DeviceRepository
 import com.isaquefontinele.devicemanager.core.data.WriteOutcome
 import com.isaquefontinele.devicemanager.core.model.Device
 import com.isaquefontinele.devicemanager.core.model.DeviceInput
+import com.isaquefontinele.devicemanager.core.model.RejectedChange
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.runTest
@@ -74,6 +75,8 @@ class SyncWorkerTest {
     private class StubRepository(private val syncResult: kotlin.Result<Unit>) : DeviceRepository {
         override fun observeDevices(): Flow<List<Device>> = emptyFlow()
         override fun observeDevice(id: String): Flow<Device?> = emptyFlow()
+        override fun observeRejectedChanges(): Flow<List<RejectedChange>> = emptyFlow()
+        override suspend fun acknowledgeRejectedChange(id: Long) = Unit
         override suspend fun refresh(): kotlin.Result<Unit> = syncResult
         override suspend fun syncPending(): kotlin.Result<Unit> = syncResult
         override suspend fun create(input: DeviceInput) = kotlin.Result.success(WriteOutcome.SENT)

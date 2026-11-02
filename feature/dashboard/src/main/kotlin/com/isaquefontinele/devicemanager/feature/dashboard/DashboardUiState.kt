@@ -30,4 +30,5 @@ sealed interface DashboardMessage {
     data object DeviceRemovedOffline : DashboardMessage
     data class RemoveFailed(val reason: ErrorReason) : DashboardMessage
     data class FavoriteChanged(val isFavorite: Boolean) : DashboardMessage
+    data class ChangeRejected(val deviceName: String) : DashboardMessage
 }

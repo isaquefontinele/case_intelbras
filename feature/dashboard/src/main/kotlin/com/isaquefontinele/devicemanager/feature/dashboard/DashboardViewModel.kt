@@ -43,6 +43,14 @@ class DashboardViewModel @Inject constructor(private val repository: DeviceRepos
 
     init {
         refresh()
+        viewModelScope.launch {
+            repository.observeRejectedChanges().collect { changes ->
+                changes.forEach { change ->
+                    messageChannel.send(DashboardMessage.ChangeRejected(change.deviceName))
+                    repository.acknowledgeRejectedChange(change.id)
+                }
+            }
+        }
     }
 
     fun refresh() {

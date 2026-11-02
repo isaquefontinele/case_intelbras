@@ -107,7 +107,7 @@ Kotlin 2.4 · Jetpack Compose (BOM 2026.06) + Material 3 · Navigation Compose �
   - **A API é tentada primeiro**, para que erros como MAC já cadastrado continuem aparecendo no campo. Só falta de conexão e tempo limite estourado viram pendência. Erro 500 e token inválido são mostrados ao usuário.
   - **A sincronização preserva o que está pendente.** Linhas com mudança não enviada não são sobrescritas nem apagadas pelo download. Dispositivos criados offline usam um id local, trocado pelo id do servidor no envio, e o favorito acompanha a troca. A troca fica registrada em uma tabela, para que uma tela aberta antes do envio continue encontrando o dispositivo pelo id antigo.
   - **Uma operação por vez.** Um `Mutex` no repositório serializa escritas e sincronizações, incluindo as chamadas de rede. Sem ele, uma sincronização poderia sobrescrever uma edição feita enquanto esperava o servidor. O custo é que salvar pode esperar uma sincronização em andamento.
-  - **Recusas no envio não são repetidas.** Um 409 ou outro erro 4xx não se resolve tentando de novo, então a mudança é descartada e o dispositivo volta ao que o servidor tem. Falhas temporárias são repetidas com espera exponencial.
+  - **Recusas no envio não são repetidas.** Um 409 ou outro erro 4xx não se resolve tentando de novo, então a mudança é descartada e o dispositivo volta ao que o servidor tem. A recusa fica registrada em uma tabela, porque o envio pode ocorrer com o app fechado, e a lista avisa o usuário por snackbar na próxima vez que estiver aberta. Falhas temporárias são repetidas com espera exponencial.
 - **Validação local alinhada à API.** A documentação não descreve todas as regras; testando a API, o servidor recusa com 400:
   - número de série que não tenha exatamente **13 caracteres**;
   - nome, usuário e senha com mais de **200 caracteres**;
@@ -143,8 +143,7 @@ Kotlin 2.4 · Jetpack Compose (BOM 2026.06) + Material 3 · Navigation Compose �
 ## Pendências
 
 - **Limitações da fila offline**:
-  - Uma mudança pendente recusada pelo servidor é descartada sem avisar o usuário. O ideal seria mostrar o que foi perdido.
-  - Se uma criação estourar o tempo limite mas tiver sido feita no servidor, o reenvio recebe 409 e o download traz o dispositivo, mas um favorito marcado nesse meio-tempo se perde.
+  - Se uma criação estourar o tempo limite mas tiver sido feita no servidor, o reenvio recebe 409. O download traz o dispositivo, mas um favorito marcado nesse meio-tempo se perde e o usuário vê o aviso de recusa sem necessidade.
 - **Acessibilidade**: descrições para leitor de tela e áreas de toque já estão nos componentes; falta uma revisão completa com TalkBack.
 - **Testes instrumentados** em aparelho (hoje todos os testes de UI e banco rodam com Robolectric).
 

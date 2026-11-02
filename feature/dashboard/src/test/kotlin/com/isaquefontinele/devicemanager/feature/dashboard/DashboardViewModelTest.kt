@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.isaquefontinele.devicemanager.core.data.DataError
 import com.isaquefontinele.devicemanager.core.data.WriteOutcome
 import com.isaquefontinele.devicemanager.core.model.AlarmCentral
+import com.isaquefontinele.devicemanager.core.model.RejectedChange
 import com.isaquefontinele.devicemanager.core.model.VideoDevice
 import com.isaquefontinele.devicemanager.core.testing.FakeDeviceRepository
 import com.isaquefontinele.devicemanager.core.testing.MainDispatcherRule
@@ -189,6 +190,20 @@ class DashboardViewModelTest {
             viewModel.onRemoveConfirm()
             assertEquals(DashboardMessage.DeviceRemovedOffline, awaitItem())
         }
+    }
+
+    @Test
+    fun `a refused change is reported once`() = runTest(UnconfinedTestDispatcher()) {
+        val repository = FakeDeviceRepository(all)
+        repository.rejectedChanges.value = listOf(RejectedChange(1, "Câmera 1"), RejectedChange(2, "Câmera 2"))
+        val viewModel = viewModel(repository)
+
+        viewModel.messages.test {
+            assertEquals(DashboardMessage.ChangeRejected("Câmera 1"), awaitItem())
+            assertEquals(DashboardMessage.ChangeRejected("Câmera 2"), awaitItem())
+            expectNoEvents()
+        }
+        assertEquals(emptyList<RejectedChange>(), repository.rejectedChanges.value)
     }
 
     @Test
