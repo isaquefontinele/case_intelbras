@@ -1,6 +1,7 @@
 package com.isaquefontinele.devicemanager.core.testing
 
 import com.isaquefontinele.devicemanager.core.data.DeviceRepository
+import com.isaquefontinele.devicemanager.core.data.WriteOutcome
 import com.isaquefontinele.devicemanager.core.model.AlarmCentral
 import com.isaquefontinele.devicemanager.core.model.Device
 import com.isaquefontinele.devicemanager.core.model.DeviceInput
@@ -24,9 +25,9 @@ class FakeDeviceRepository(devices: List<Device> = emptyList()) : DeviceReposito
     var refreshCalls = 0
         private set
 
-    var createResult: Result<Unit> = Result.success(Unit)
-    var updateResult: Result<Unit> = Result.success(Unit)
-    var deleteResult: Result<Unit> = Result.success(Unit)
+    var createResult: Result<WriteOutcome> = Result.success(WriteOutcome.SENT)
+    var updateResult: Result<WriteOutcome> = Result.success(WriteOutcome.SENT)
+    var deleteResult: Result<WriteOutcome> = Result.success(WriteOutcome.SENT)
 
     /** When set, create and update suspend until it completes. */
     var saveGate: CompletableDeferred<Unit>? = null
@@ -46,19 +47,19 @@ class FakeDeviceRepository(devices: List<Device> = emptyList()) : DeviceReposito
 
     override suspend fun syncPending(): Result<Unit> = Result.success(Unit)
 
-    override suspend fun create(input: DeviceInput): Result<Unit> {
+    override suspend fun create(input: DeviceInput): Result<WriteOutcome> {
         savedInputs += input
         saveGate?.await()
         return createResult
     }
 
-    override suspend fun update(id: String, input: DeviceInput): Result<Unit> {
+    override suspend fun update(id: String, input: DeviceInput): Result<WriteOutcome> {
         savedInputs += input
         saveGate?.await()
         return updateResult
     }
 
-    override suspend fun delete(device: Device): Result<Unit> = deleteResult.onSuccess {
+    override suspend fun delete(device: Device): Result<WriteOutcome> = deleteResult.onSuccess {
         devices.update { list -> list.filterNot { it.id == device.id } }
     }
 

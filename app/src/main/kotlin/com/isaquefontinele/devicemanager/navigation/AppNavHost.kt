@@ -41,5 +41,6 @@ fun AppNavHost(modifier: Modifier = Modifier) {
 private fun DeviceFormResult.toDashboardNotice(): DashboardNotice = when (this) {
     DeviceFormResult.ADDED -> DashboardNotice.DEVICE_ADDED
     DeviceFormResult.UPDATED -> DashboardNotice.DEVICE_UPDATED
+    DeviceFormResult.SAVED_OFFLINE -> DashboardNotice.DEVICE_SAVED_OFFLINE
     DeviceFormResult.NOT_FOUND -> DashboardNotice.DEVICE_NOT_FOUND
 }

@@ -3,6 +3,7 @@ package com.isaquefontinele.devicemanager.feature.dashboard
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.isaquefontinele.devicemanager.core.data.DeviceRepository
+import com.isaquefontinele.devicemanager.core.data.WriteOutcome
 import com.isaquefontinele.devicemanager.core.model.Device
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -84,7 +85,12 @@ class DashboardViewModel @Inject constructor(private val repository: DeviceRepos
         controls.update { it.copy(removalDeviceCandidate = null) }
         viewModelScope.launch {
             val message = repository.delete(device).fold(
-                onSuccess = { DashboardMessage.DeviceRemoved },
+                onSuccess = { outcome ->
+                    when (outcome) {
+                        WriteOutcome.SENT -> DashboardMessage.DeviceRemoved
+                        WriteOutcome.QUEUED -> DashboardMessage.DeviceRemovedOffline
+                    }
+                },
                 onFailure = { DashboardMessage.RemoveFailed(it.toErrorReason()) },
             )
             messageChannel.send(message)

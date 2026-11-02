@@ -1,5 +1,6 @@
 package com.isaquefontinele.devicemanager.core.data
 
+import com.isaquefontinele.devicemanager.core.data.sync.SyncScheduler
 import com.isaquefontinele.devicemanager.core.database.dao.DeviceDao
 import com.isaquefontinele.devicemanager.core.database.dao.FavoriteDao
 import com.isaquefontinele.devicemanager.core.database.entity.DeviceEntity
@@ -27,6 +28,7 @@ internal class OfflineFirstDeviceRepository @Inject constructor(
     private val remote: DeviceRemoteDataSource,
     private val deviceDao: DeviceDao,
     private val favoriteDao: FavoriteDao,
+    private val syncScheduler: SyncScheduler,
 ) : DeviceRepository {
 
     /**
@@ -55,18 +57,20 @@ internal class OfflineFirstDeviceRepository @Inject constructor(
         }
     }
 
-    override suspend fun create(input: DeviceInput): Result<Unit> = withValidInput(input) { valid ->
+    override suspend fun create(input: DeviceInput): Result<WriteOutcome> = withValidInput(input) { valid ->
         sendOrQueue(
             send = { deviceDao.upsert(listOf(sendCreate(valid).toEntity())) },
             queue = { deviceDao.upsert(listOf(valid.toEntity(newLocalId(), SyncState.PENDING_CREATE))) },
         )
     }
 
-    override suspend fun update(id: String, input: DeviceInput): Result<Unit> = withValidInput(input) { valid ->
+    override suspend fun update(id: String, input: DeviceInput): Result<WriteOutcome> = withValidInput(input) { valid ->
         when (val state = deviceDao.getById(id)?.syncState) {
             SyncState.PENDING_DELETE -> throw DataError.NotFound()
             // The server gets the latest values when the pending change is sent.
-            SyncState.PENDING_CREATE, SyncState.PENDING_UPDATE -> deviceDao.upsert(listOf(valid.toEntity(id, state)))
+            SyncState.PENDING_CREATE, SyncState.PENDING_UPDATE -> queue {
+                deviceDao.upsert(listOf(valid.toEntity(id, state)))
+            }
             SyncState.SYNCED, null -> sendOrQueue(
                 send = { sendUpdateOrDropLocal(id, valid) },
                 queue = { deviceDao.upsert(listOf(valid.toEntity(id, SyncState.PENDING_UPDATE))) },
@@ -74,12 +78,13 @@ internal class OfflineFirstDeviceRepository @Inject constructor(
         }
     }
 
-    override suspend fun delete(device: Device): Result<Unit> = runCatchingData {
+    override suspend fun delete(device: Device): Result<WriteOutcome> = runCatchingData {
         writeLock.withLock {
             val entity = device.toEntity()
             if (deviceDao.getById(device.id)?.syncState == SyncState.PENDING_CREATE) {
                 // The server never knew about it.
                 deviceDao.deleteById(device.id)
+                WriteOutcome.SENT
             } else {
                 sendOrQueue(
                     send = { sendDeleteAndDropLocal(entity) },
@@ -93,7 +98,10 @@ internal class OfflineFirstDeviceRepository @Inject constructor(
         favoriteDao.setFavorite(id, isFavorite)
     }
 
-    private suspend fun withValidInput(input: DeviceInput, block: suspend (DeviceInput) -> Unit): Result<Unit> {
+    private suspend fun withValidInput(
+        input: DeviceInput,
+        block: suspend (DeviceInput) -> WriteOutcome,
+    ): Result<WriteOutcome> {
         val normalized = input.normalized()
         val validation = DeviceInputValidator.validate(normalized)
         if (!validation.isValid) return Result.failure(DataError.Invalid(validation.errors))
@@ -104,14 +112,19 @@ internal class OfflineFirstDeviceRepository @Inject constructor(
      * A timeout also queues: the server may have applied the write, but sending it again is safe. An update
      * repeats the same values, a delete answers 404, and a create answers 409 and the download brings the device.
      */
-    private suspend fun sendOrQueue(send: suspend () -> Unit, queue: suspend () -> Unit) {
-        try {
-            send()
-        } catch (_: NetworkError.NoConnection) {
-            queue()
-        } catch (_: NetworkError.Timeout) {
-            queue()
-        }
+    private suspend fun sendOrQueue(send: suspend () -> Unit, queue: suspend () -> Unit): WriteOutcome = try {
+        send()
+        WriteOutcome.SENT
+    } catch (_: NetworkError.NoConnection) {
+        queue(queue)
+    } catch (_: NetworkError.Timeout) {
+        queue(queue)
+    }
+
+    private suspend fun queue(save: suspend () -> Unit): WriteOutcome {
+        save()
+        syncScheduler.schedulePendingSync()
+        return WriteOutcome.QUEUED
     }
 
     private suspend fun downloadDevices() {

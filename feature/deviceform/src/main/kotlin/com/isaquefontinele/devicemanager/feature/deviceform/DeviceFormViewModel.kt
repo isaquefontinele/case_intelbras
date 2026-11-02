@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.isaquefontinele.devicemanager.core.data.DataError
 import com.isaquefontinele.devicemanager.core.data.DeviceRepository
+import com.isaquefontinele.devicemanager.core.data.WriteOutcome
 import com.isaquefontinele.devicemanager.core.model.AlarmCentral
 import com.isaquefontinele.devicemanager.core.model.DeviceInput
 import com.isaquefontinele.devicemanager.core.model.DeviceType
@@ -93,12 +94,14 @@ class DeviceFormViewModel @Inject constructor(
             val input = state.toInput()
             val result = if (deviceId == null) repository.create(input) else repository.update(deviceId, input)
             _uiState.update { it.copy(isSaving = false) }
-            val error = result.exceptionOrNull()
-            if (error == null) {
-                eventChannel.send(DeviceFormEvent.Saved(isNew = deviceId == null))
-            } else {
-                handleFailure(error)
-            }
+            result.fold(
+                onSuccess = { outcome ->
+                    eventChannel.send(
+                        DeviceFormEvent.Saved(isNew = deviceId == null, isQueued = outcome == WriteOutcome.QUEUED),
+                    )
+                },
+                onFailure = { handleFailure(it) },
+            )
         }
     }
 

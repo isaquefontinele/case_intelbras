@@ -49,8 +49,13 @@ internal fun DeviceFormRoute(onClose: (DeviceFormResult?) -> Unit, viewModel: De
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                is DeviceFormEvent.Saved ->
-                    onClose(if (event.isNew) DeviceFormResult.ADDED else DeviceFormResult.UPDATED)
+                is DeviceFormEvent.Saved -> onClose(
+                    when {
+                        event.isQueued -> DeviceFormResult.SAVED_OFFLINE
+                        event.isNew -> DeviceFormResult.ADDED
+                        else -> DeviceFormResult.UPDATED
+                    },
+                )
                 DeviceFormEvent.DeviceNotFound -> onClose(DeviceFormResult.NOT_FOUND)
                 is DeviceFormEvent.SaveFailed ->
                     snackbarHostState.showSnackbar(resources.getString(event.error.messageRes()))

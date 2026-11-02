@@ -27,6 +27,7 @@ enum class ErrorReason { NO_CONNECTION, UNAUTHORIZED, UNEXPECTED }
 sealed interface DashboardMessage {
     data class RefreshFailed(val reason: ErrorReason) : DashboardMessage
     data object DeviceRemoved : DashboardMessage
+    data object DeviceRemovedOffline : DashboardMessage
     data class RemoveFailed(val reason: ErrorReason) : DashboardMessage
     data class FavoriteChanged(val isFavorite: Boolean) : DashboardMessage
 }

@@ -2,6 +2,7 @@ package com.isaquefontinele.devicemanager.feature.dashboard
 
 import app.cash.turbine.test
 import com.isaquefontinele.devicemanager.core.data.DataError
+import com.isaquefontinele.devicemanager.core.data.WriteOutcome
 import com.isaquefontinele.devicemanager.core.model.AlarmCentral
 import com.isaquefontinele.devicemanager.core.model.VideoDevice
 import com.isaquefontinele.devicemanager.core.testing.FakeDeviceRepository
@@ -176,6 +177,18 @@ class DashboardViewModelTest {
         }
         assertNull(viewModel.uiState.value.removalDeviceCandidate)
         assertEquals(listOf(alarm, camera1), viewModel.visible())
+    }
+
+    @Test
+    fun `removal without connection is reported as queued`() = runTest(UnconfinedTestDispatcher()) {
+        val repository = FakeDeviceRepository(all).apply { deleteResult = Result.success(WriteOutcome.QUEUED) }
+        val viewModel = viewModel(repository)
+        viewModel.onRemoveRequest(alarm)
+
+        viewModel.messages.test {
+            viewModel.onRemoveConfirm()
+            assertEquals(DashboardMessage.DeviceRemovedOffline, awaitItem())
+        }
     }
 
     @Test

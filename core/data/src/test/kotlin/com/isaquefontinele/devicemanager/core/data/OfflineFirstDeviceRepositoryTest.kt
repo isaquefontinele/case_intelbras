@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.isaquefontinele.devicemanager.core.data.sync.SyncScheduler
 import com.isaquefontinele.devicemanager.core.database.DeviceDatabase
 import com.isaquefontinele.devicemanager.core.database.entity.SyncState
 import com.isaquefontinele.devicemanager.core.model.AlarmCentral
@@ -28,6 +29,7 @@ class OfflineFirstDeviceRepositoryTest {
     private lateinit var database: DeviceDatabase
     private lateinit var remote: FakeDeviceRemoteDataSource
     private lateinit var repository: OfflineFirstDeviceRepository
+    private var scheduledSyncs = 0
 
     private val alarm = AlarmCentral(id = "a1", name = "House", macAddress = "1A2B3C4D5E6F", password = "1234")
     private val camera = VideoDevice(id = "v1", name = "Garage", serial = "ABC", username = "admin", password = "pw")
@@ -46,7 +48,12 @@ class OfflineFirstDeviceRepositoryTest {
             .allowMainThreadQueries()
             .build()
         remote = FakeDeviceRemoteDataSource()
-        repository = OfflineFirstDeviceRepository(remote, database.deviceDao(), database.favoriteDao())
+        repository = OfflineFirstDeviceRepository(
+            remote,
+            database.deviceDao(),
+            database.favoriteDao(),
+            SyncScheduler { scheduledSyncs++ },
+        )
     }
 
     @After
@@ -130,7 +137,8 @@ class OfflineFirstDeviceRepositoryTest {
 
     @Test
     fun `create sends normalized input and saves the device locally`() = runTest {
-        repository.create(alarmInput).getOrThrow()
+        assertEquals(WriteOutcome.SENT, repository.create(alarmInput).getOrThrow())
+        assertEquals(0, scheduledSyncs)
 
         val created = remote.alarms.values.single()
         assertEquals("Office", created.name)
@@ -221,7 +229,8 @@ class OfflineFirstDeviceRepositoryTest {
     fun `create without connection is saved as pending and shown`() = runTest {
         remote.failure = NetworkError.NoConnection()
 
-        assertTrue(repository.create(videoInput).isSuccess)
+        assertEquals(WriteOutcome.QUEUED, repository.create(videoInput).getOrThrow())
+        assertEquals(1, scheduledSyncs)
 
         val device = devices().single() as VideoDevice
         assertEquals("Door", device.name)
@@ -269,7 +278,8 @@ class OfflineFirstDeviceRepositoryTest {
         repository.setFavorite(camera.id, isFavorite = true)
         remote.failure = NetworkError.Timeout()
 
-        assertTrue(repository.update(camera.id, videoInput).isSuccess)
+        assertEquals(WriteOutcome.QUEUED, repository.update(camera.id, videoInput).getOrThrow())
+        assertEquals(1, scheduledSyncs)
 
         assertEquals(SyncState.PENDING_UPDATE, syncState(camera.id))
         assertEquals("Door", repository.observeDevice(camera.id).first()?.name)
@@ -288,7 +298,8 @@ class OfflineFirstDeviceRepositoryTest {
         seedServerAndRefresh()
         remote.failure = NetworkError.NoConnection()
 
-        assertTrue(repository.delete(alarm).isSuccess)
+        assertEquals(WriteOutcome.QUEUED, repository.delete(alarm).getOrThrow())
+        assertEquals(1, scheduledSyncs)
 
         assertEquals(listOf<Device>(camera), devices())
         assertEquals(SyncState.PENDING_DELETE, syncState(alarm.id))
@@ -336,8 +347,10 @@ class OfflineFirstDeviceRepositoryTest {
         repository.update(camera.id, videoInput).getOrThrow()
         val callsBefore = remote.calls
 
-        repository.update(camera.id, videoInput.copy(name = "Front door")).getOrThrow()
+        val outcome = repository.update(camera.id, videoInput.copy(name = "Front door")).getOrThrow()
 
+        assertEquals(WriteOutcome.QUEUED, outcome)
+        assertEquals(2, scheduledSyncs)
         assertEquals(callsBefore, remote.calls)
         assertEquals("Front door", repository.observeDevice(camera.id).first()?.name)
     }

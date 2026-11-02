@@ -2,6 +2,8 @@ package com.isaquefontinele.devicemanager.core.data.di
 
 import com.isaquefontinele.devicemanager.core.data.DeviceRepository
 import com.isaquefontinele.devicemanager.core.data.OfflineFirstDeviceRepository
+import com.isaquefontinele.devicemanager.core.data.sync.SyncScheduler
+import com.isaquefontinele.devicemanager.core.data.sync.WorkManagerSyncScheduler
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -15,4 +17,7 @@ internal abstract class DataModule {
     @Binds
     @Singleton
     abstract fun bindDeviceRepository(impl: OfflineFirstDeviceRepository): DeviceRepository
+
+    @Binds
+    abstract fun bindSyncScheduler(impl: WorkManagerSyncScheduler): SyncScheduler
 }

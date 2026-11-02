@@ -3,6 +3,7 @@ package com.isaquefontinele.devicemanager.feature.deviceform
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.isaquefontinele.devicemanager.core.data.DataError
+import com.isaquefontinele.devicemanager.core.data.WriteOutcome
 import com.isaquefontinele.devicemanager.core.model.AlarmCentral
 import com.isaquefontinele.devicemanager.core.model.DeviceInput
 import com.isaquefontinele.devicemanager.core.model.DeviceType
@@ -57,6 +58,17 @@ class DeviceFormViewModelTest {
     }
 
     @Test
+    fun `a save without connection is reported as queued`() = runTest {
+        repository.createResult = Result.success(WriteOutcome.QUEUED)
+        val viewModel = newForm()
+
+        viewModel.events.test {
+            viewModel.onSave()
+            assertEquals(DeviceFormEvent.Saved(isNew = true, isQueued = true), awaitItem())
+        }
+    }
+
+    @Test
     fun `switching to alarm sends an alarm input and clears errors`() = runTest {
         val viewModel = newForm()
         repository.createResult = Result.failure(DataError.Invalid(mapOf(DeviceField.SERIAL to FieldError.REQUIRED)))
@@ -66,7 +78,7 @@ class DeviceFormViewModelTest {
         viewModel.onTypeChange(DeviceType.ALARM)
         assertEquals(emptyMap<DeviceField, FieldError>(), viewModel.uiState.value.errors)
 
-        repository.createResult = Result.success(Unit)
+        repository.createResult = Result.success(WriteOutcome.SENT)
         viewModel.onNameChange("Casa")
         viewModel.onMacAddressChange("a0:b1:c2:d3:e4:f5")
         viewModel.onPasswordChange("1234")

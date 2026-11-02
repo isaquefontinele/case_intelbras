@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object DashboardDestination
 
-enum class DashboardNotice { DEVICE_ADDED, DEVICE_UPDATED, DEVICE_NOT_FOUND }
+enum class DashboardNotice { DEVICE_ADDED, DEVICE_UPDATED, DEVICE_SAVED_OFFLINE, DEVICE_NOT_FOUND }
 
 private const val NOTICE_KEY = "dashboard_notice"
 

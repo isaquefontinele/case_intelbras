@@ -21,7 +21,7 @@ data class DeviceFormUiState(
 enum class FormError { NO_CONNECTION, UNAUTHORIZED, NOT_FOUND, UNEXPECTED }
 
 sealed interface DeviceFormEvent {
-    data class Saved(val isNew: Boolean) : DeviceFormEvent
+    data class Saved(val isNew: Boolean, val isQueued: Boolean = false) : DeviceFormEvent
     data class SaveFailed(val error: FormError) : DeviceFormEvent
     data object DeviceNotFound : DeviceFormEvent
 }
