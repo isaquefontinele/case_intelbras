@@ -85,7 +85,7 @@ MVVM com Coroutines/Flow, *offline-first*, com o Room como **fonte única de ver
 | `:core:model` | Modelos de domínio e validação (Kotlin puro) |
 | `:core:insights` | Resumo dos dispositivos da lista, em Kotlin Multiplatform (alvos JVM e iOS) |
 | `:core:network` | Retrofit/OkHttp, DTOs, interceptor de autenticação, mapeamento de erros HTTP |
-| `:core:database` | Room: tabelas de dispositivos e favoritos, DAOs |
+| `:core:database` | Room: tabelas, DAOs e migrações |
 | `:core:data` | Repositório *offline-first*, sincronização e fila de mudanças pendentes (WorkManager) |
 | `:core:designsystem` | Tema (cores, tipografia Open Sans, claro/escuro) e componentes reutilizáveis |
 | `:core:testing` | Dublês de teste compartilhados (`FakeDeviceRepository`, `MainDispatcherRule`) |
@@ -98,36 +98,35 @@ As features não dependem umas das outras; só o `:app` as conhece e liga a nave
 
 ### Stack
 
-Kotlin 2.4 (com um módulo Multiplatform) · Jetpack Compose (BOM 2026.06) + Material 3 · Navigation Compose · Hilt · Room · Retrofit 3 + OkHttp 5 · kotlinx.serialization · Coroutines/Flow · JUnit 4 + Robolectric + MockWebServer · ktlint · detekt · GitHub Actions.
+Kotlin 2.4 (com um módulo Multiplatform) · Jetpack Compose + Material 3 · Navigation Compose · Hilt · Room · Retrofit 3 + OkHttp 5 · kotlinx.serialization · Coroutines/Flow · JUnit 4 + Robolectric + MockWebServer · ktlint · detekt · GitHub Actions.
 
 ## Decisões
 
-- **Favoritos em tabela separada.** A API não tem o conceito de favorito, então ele mora numa tabela `favorites` própria, ligada a `devices` por chave estrangeira com `ON DELETE CASCADE`. A sincronização usa *upsert* (e não `REPLACE`, que apaga e reinsere a linha e levaria o favorito junto pelo cascade). Dispositivos que sumiram do servidor são removidos, e o favorito deles também.
-- **Uma tabela para os dois tipos.** Câmeras e alarmes ficam em `devices`, com uma coluna de tipo e os campos específicos opcionais. Os ids da API são UUIDs, então não há colisão entre os tipos, e a lista ordenada e a busca saem de uma única consulta.
-- **Fila offline como estado do dispositivo.** Em vez de uma tabela de operações, cada linha de `devices` tem um `syncState` (`SYNCED`, `PENDING_CREATE`, `PENDING_UPDATE`, `PENDING_DELETE`), adicionado na versão 2 do banco com migração testada. Assim, mudanças seguidas no mesmo dispositivo se juntam sozinhas: criar e editar vira uma criação com os dados novos, criar e remover não envia nada, e editar e remover envia só a remoção.
-  - **A API é tentada primeiro**, para que erros como MAC já cadastrado continuem aparecendo no campo. Só falta de conexão e tempo limite estourado viram pendência. Erro 500 e token inválido são mostrados ao usuário.
-  - **A sincronização preserva o que está pendente.** Linhas com mudança não enviada não são sobrescritas nem apagadas pelo download. Dispositivos criados offline usam um id local, trocado pelo id do servidor no envio, e o favorito acompanha a troca. A troca fica registrada em uma tabela, para que uma tela aberta antes do envio continue encontrando o dispositivo pelo id antigo.
-  - **Uma operação por vez.** Um `Mutex` no repositório serializa escritas e sincronizações, incluindo as chamadas de rede. Sem ele, uma sincronização poderia sobrescrever uma edição feita enquanto esperava o servidor. O custo é que salvar pode esperar uma sincronização em andamento.
-  - **Recusas no envio não são repetidas.** Um 409 ou outro erro 4xx não se resolve tentando de novo, então a mudança é descartada e o dispositivo volta ao que o servidor tem. A recusa fica registrada em uma tabela, porque o envio pode ocorrer com o app fechado, e a lista avisa o usuário por snackbar na próxima vez que estiver aberta. Falhas temporárias são repetidas com espera exponencial.
-- **Validação local alinhada à API.** A documentação não descreve todas as regras; testando a API, o servidor recusa com 400:
-  - número de série que não tenha exatamente **13 caracteres**;
-  - nome, usuário e senha com mais de **200 caracteres**;
-  - senha de alarme que não seja numérica de 4 a 6 dígitos.
+### Dados e fila offline
 
-  O app valida isso antes de enviar, para mostrar o motivo no campo. Para a senha do alarme, segue a documentação (4 **ou** 6 dígitos), que é mais restrita que a API.
-- **MAC Address normalizado.** O usuário pode digitar com ou sem separadores (`a0:b1:...` ou `A0B1...`); o app envia 12 caracteres hexadecimais em maiúsculas e exibe formatado com `:`.
-- **Conflitos (409) no campo.** MAC ou número de série já cadastrado aparece como erro no próprio campo, e não como mensagem genérica.
-- **Dispositivo removido por outra pessoa.** Editar um dispositivo que não existe mais no servidor (404) remove a cópia local e avisa na lista. Remover um que já não existe é tratado como sucesso.
-- **Token inválido.** A documentação fala em 403, mas a API responde **401**; o app trata os dois como "não autorizado".
-- **"Ativo" substituído por "Favorito".** O Figma mostra um status "Ativo" na tela de informações, mas a API não fornece esse dado. Para não exibir uma informação inventada, o cabeçalho mostra "★ Favorito" quando for o caso.
-- **Acessibilidade.** Revisei a árvore de semântica das telas, as áreas de toque (mínimo de 48 dp) e o layout com fonte em 200%. Um erro de validação também gera snackbar, porque o erro no campo só é lido quando o leitor de tela chega até ele. Os indicadores de carregamento são anunciados, e os valores da tela de Informações quebram linha em vez de serem cortados.
-- **Kotlin Multiplatform em um módulo novo.** O `:core:insights` calcula o resumo mostrado abaixo do contador da lista ("2 câmeras · 1 alarme · 1 favorito"), que não está no protótipo. Preferi algo novo e pequeno a migrar um módulo que já funcionava: o objetivo é mostrar a integração. Ele tem modelo próprio, sem depender do resto do app. O Android consome o alvo JVM, e os alvos iOS compilam e rodam os testes em `commonTest`, mas nenhum app iOS os usa. Os textos ficam nos recursos do Android, porque só a regra é compartilhada.
-- **Senha nunca exibida** na tela de informações.
-- **HTTP sem TLS.** A API só é servida em HTTP; o tráfego em texto puro é liberado apenas para esse host (`network_security_config.xml`).
-- **API lenta.** As respostas levam alguns segundos (~5 s nos testes), por isso os timeouts do OkHttp são folgados e a lista mostra os dados locais enquanto sincroniza.
-- **compileSdk 36.** Algumas bibliotecas em versões mais novas (ex.: OkHttp 5.5+) exigem compileSdk 37; foram mantidas na última versão compatível com o SDK pedido.
-- **Idiomas.** O inglês fica em `values/` e o português em `values-pt/`, então um aparelho em outro idioma vê o app em inglês. O Android Lint acusa string faltando em qualquer um dos dois. Os testes de tela conferem os textos em português, com o idioma fixado em `robolectric.properties`.
-- **Ícones como Vector Drawable.** Os ícones vêm do Figma e ficam centralizados em `AppIcons`. A exceção é o olho aberto de "mostrar senha": o Figma só tem o olho riscado, então usei o desenho equivalente do Material. A estrela preenchida ao lado do nome de um favorito também não está no protótipo; foi feita a partir do contorno da estrela do Figma.
+- **Favoritos em tabela separada.** A API não tem favoritos, então eles ficam em `favorites`, que a sincronização não toca. Em `devices`, ela usa *upsert*: `REPLACE` apaga e reinsere a linha, e o `ON DELETE CASCADE` levaria o favorito junto.
+- **Uma tabela para os dois tipos.** Os ids da API são UUIDs, então não colidem, e a lista e a busca saem de uma só consulta. O custo são colunas opcionais.
+- **Fila como estado do dispositivo.** Cada linha tem um `syncState`, em vez de existir uma tabela de operações. Assim, as mudanças se juntam sozinhas: criar e editar vira uma criação, criar e remover não envia nada, e editar e remover envia só a remoção.
+- **API primeiro.** Só falta de conexão e tempo limite viram pendência, para que erros como MAC já cadastrado continuem aparecendo no campo.
+- **Pendências preservadas.** O download não sobrescreve linhas com mudança não enviada. Dispositivos criados offline usam um id local, e a troca pelo id do servidor fica registrada, para o favorito e as telas abertas acompanharem.
+- **Uma operação por vez.** Um `Mutex` serializa escritas e sincronizações, incluindo a rede, para uma sincronização não sobrescrever uma edição. O custo é que salvar pode esperar uma sincronização em andamento.
+- **Recusas não são repetidas.** Um 409 ou outro 4xx é desfeito e a lista avisa, mesmo que o envio tenha ocorrido com o app fechado. Falhas temporárias são repetidas com espera exponencial.
+
+### API
+
+- **Regras descobertas testando.** O servidor exige série com exatamente 13 caracteres e textos com até 200, e responde 401 para token inválido, embora a documentação fale em 403. O app valida antes de enviar. Na senha do alarme, segue a documentação (4 ou 6 dígitos), mais restrita que a API (4 a 6).
+- **MAC normalizado.** Aceita com ou sem separadores, envia 12 caracteres hexadecimais em maiúsculas e exibe com `:`.
+- **Dispositivo removido por outra pessoa.** Editar (404) remove a cópia local e avisa na lista. Remover é tratado como sucesso.
+- **API lenta e sem TLS.** Com respostas de cerca de 5 s, os timeouts são folgados e a lista mostra os dados locais enquanto sincroniza. O HTTP em texto puro é liberado só para esse host.
+- **compileSdk 36.** Algumas bibliotecas ficaram na última versão compatível, porque as mais novas (ex.: OkHttp 5.5+) exigem o 37.
+
+### Interface e extras
+
+- **"Favorito" no lugar de "Ativo".** O Figma mostra um status "Ativo", que a API não fornece, e preferi não inventar o dado. A senha nunca é exibida em Informações.
+- **Ícones do Figma.** São Vector Drawables centralizados em `AppIcons`. O Figma não tem o olho aberto de "mostrar senha", então usei o desenho do Material.
+- **Idiomas.** O inglês fica em `values/` e o português em `values-pt/`, então um aparelho em outro idioma vê o app em inglês.
+- **Acessibilidade.** Revisei a semântica, as áreas de toque e o layout com fonte em 200%. Um erro de validação também gera snackbar, para ser anunciado na hora.
+- **Kotlin Multiplatform em um módulo novo.** O `:core:insights` calcula o resumo abaixo do contador da lista, que não está no protótipo. Preferi algo pequeno a migrar um módulo que já funcionava. O Android consome o alvo JVM; os alvos iOS compilam e rodam os testes, mas nenhum app iOS os usa.
 
 ## Testes
 
@@ -145,9 +144,8 @@ Kotlin 2.4 (com um módulo Multiplatform) · Jetpack Compose (BOM 2026.06) + Mat
 
 ## Pendências
 
-- **Limitações da fila offline**:
-  - Se uma criação estourar o tempo limite mas tiver sido feita no servidor, o reenvio recebe 409. O download traz o dispositivo, mas um favorito marcado nesse meio-tempo se perde e o usuário vê o aviso de recusa sem necessidade.
-- **Acessibilidade**: os problemas achados na revisão foram corrigidos (ver Decisões), mas falta uma rodada completa com TalkBack feita por quem usa leitor de tela no dia a dia.
+- **Fila offline**: se uma criação estourar o tempo limite mas tiver sido feita no servidor, o reenvio recebe 409. O download traz o dispositivo, mas um favorito marcado nesse meio-tempo se perde e o usuário vê o aviso de recusa sem necessidade.
+- **Acessibilidade**: falta uma rodada completa com TalkBack feita por quem usa leitor de tela no dia a dia.
 - **Testes instrumentados** em aparelho (hoje todos os testes de UI e banco rodam com Robolectric).
 
 ## O que eu melhoraria com mais tempo
@@ -157,5 +155,5 @@ Kotlin 2.4 (com um módulo Multiplatform) · Jetpack Compose (BOM 2026.06) + Mat
 - **Performance**: medir recomposições e uso de memória, e adicionar Baseline Profile e Macrobenchmark para o início do app.
 - **Testes de ponta a ponta**: fluxos completos em aparelho contra um servidor de teste, cobrindo também o build de release, que hoje só testei manualmente.
 - **CI e distribuição**: gerar o build de release com R8 no CI, assinar com uma chave própria e publicar por um canal de teste.
-- **Listas grandes**: paginação com Paging 3, se a API passar a oferecer. Hoje cada sincronização baixa todos os dispositivos.
-- **UI**: animações nas transições entre telas e estados, e seletor de idioma por app no Android 13 ou superior.
+- **Listas grandes**: paginação com Paging 3, se a API passar a suportar.
+- **UI**: animações nas transições entre telas e estados, e seletor de idioma nas configurações.
